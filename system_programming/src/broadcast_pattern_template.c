@@ -61,7 +61,8 @@ void* BroadcasterThread(void* arg_);
 void Broadcast(int* msg_);
 void Observer(observer_ty* observer_);
 
-void InitMessage(msg_ty* msg_);
+void InitMessage(void);
+void DestroyMessage(void);
 /*----------------------------------------------------------------------------*/
 int main(void)
 {
@@ -69,7 +70,7 @@ int main(void)
 	/*declare on brodcaster, intialized to {0}*/
 	
 	/*create/init message's instance fields'*/
-	/*call InitMessage(send a pointer to the instance )*/
+	/*call InitMessage*/
 	
 	/*create observers threads*/
 	/*traverse on observers and for each instance call pthread_create*/
@@ -88,17 +89,46 @@ int main(void)
 	/*if failed*/
 		/*exit*/
 		
-	/*cleanup */
-		/*destroy some objects such semaphore, mutex..*/
+	/*cleanup*/
+		/*call DestroyMessage*/
 		
 	/*return 0*/
 }
 /*----------------------------------------------------------------------------*/
-void InitMessage(msg_ty* msg_)
+void InitMessage()
 {
+	/*init message (shared resource) fields*/
 	/*init semaphore*/
 	/*if failed*/
 		/*exit*/
 	/*init mutex lock (macro)*/
 	/*init condition variable (also there's a macro)*/
 }
+/*----------------------------------------------------------------------------*/
+void DestroyMessage()
+{
+	/*dsetroy semaphore*/
+	/*destroy mutex*/
+	/*destroy cond var*/
+}
+/*----------------------------------------------------------------------------*/
+void* ObserverThread(void* arg_)
+{
+
+}
+/*----------------------------------------------------------------------------*/
+void* BroadcasterThread(void* arg_)
+{
+
+}
+/*----------------------------------------------------------------------------*/
+void Broadcast(int* msg_)
+{
+
+}
+/*----------------------------------------------------------------------------*/
+void Observer(observer_ty* observer_)
+{
+
+}
+/*----------------------------------------------------------------------------*/
