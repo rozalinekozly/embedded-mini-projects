@@ -61,6 +61,35 @@ void Observer(observer_ty* observer);
 /*----------------------------------------------------------------------------*/
 int main(void)
 {
-
+	/*declare on observers array intilaized to {0}*/
+	/*declare on brodcaster, intialized to {0}*/
+	/*declare on a msg_ty instance, in tialize it {0}*/
+	
+	/*create/init message's instance fields'*/
+	/*init semaphore*/
+	/*init mutex lock (macro)*/
+	/*init condition variable (also there's a macro)*/
+	
+	/*create observers threads*/
+	/*traverse on observers and for each instance call pthread_create*/
+	/*if creation failed*/
+		/*exit*/
+		
+	/*create a broadcaster thread via pthread_create*/
+	/*if failed*/
+		/*exit*/
+		
+	/*join brodcaster's thread*/
+	/*if failed*/
+		/*exit*/
+		
+	/*join observers (via loop) threads */
+	/*if failed*/
+		/*exit*/
+		
+	/*cleanup */
+		/*destroy some objects such semaphore, mutex..*/
+		
+	/*return 0*/
 }
 
