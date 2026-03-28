@@ -39,6 +39,7 @@ typedef struct
 {
     int id;			/*observer id (to print)*/
     int recent_version;		/*marks recent version the observer has read*/
+    int msg;				/*recent version msg (for prinitng)*/
     pthread_t observer_thrd;	/*handle for observer's thread*/
 } observer_ty;
 
