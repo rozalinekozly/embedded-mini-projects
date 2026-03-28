@@ -18,7 +18,8 @@
 	1- no race consition: either observbers / broadcaster enter the critical
 	section (message)
 	2- notification: observers must know a new message has sent 
-	3- all observers read message simultainsly
+	3- all observers can access to same shared message "togather" (no synching
+	 here)
 	4- avoid duplication: avoid same observer to read same message more than once
 	5- avoid busy waiting
 */
@@ -33,8 +34,7 @@
 #define OBSERVERS_NUM	3
 /*replace with enum*/
 #define MSG_NUM			5
-
-/* observer's struct */
+/*----------------------------------------------------------------------------*/
 typedef struct
 {
     int id;			/*observer id (to print)*/
@@ -52,23 +52,24 @@ typedef struct
 	pthread_mutex_t lock;		/*lock for msg field*/
 	pthread_cond_t new_msg_cond;/*cond var to identify a new message*/
 }msg_ty;
+/*----------------------------------------------------------------------------*/
+static msg_ty g_message;
 /*-------------------------forward declarations-------------------------------*/
 void* ObserverThread(void* arg_);
 void* BroadcasterThread(void* arg_);
 
-void Broadcast(int* msg);
-void Observer(observer_ty* observer);
+void Broadcast(int* msg_);
+void Observer(observer_ty* observer_);
+
+void InitMessage(msg_ty* msg_);
 /*----------------------------------------------------------------------------*/
 int main(void)
 {
 	/*declare on observers array intilaized to {0}*/
 	/*declare on brodcaster, intialized to {0}*/
-	/*declare on a msg_ty instance, in tialize it {0}*/
 	
 	/*create/init message's instance fields'*/
-	/*init semaphore*/
-	/*init mutex lock (macro)*/
-	/*init condition variable (also there's a macro)*/
+	/*call InitMessage(send a pointer to the instance )*/
 	
 	/*create observers threads*/
 	/*traverse on observers and for each instance call pthread_create*/
@@ -92,4 +93,12 @@ int main(void)
 		
 	/*return 0*/
 }
-
+/*----------------------------------------------------------------------------*/
+void InitMessage(msg_ty* msg_)
+{
+	/*init semaphore*/
+	/*if failed*/
+		/*exit*/
+	/*init mutex lock (macro)*/
+	/*init condition variable (also there's a macro)*/
+}
