@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #define OBSERVERS_NUM	3
+/*replace with enum*/
 #define MSG_NUM			5
 
 /* observer's struct */
@@ -48,4 +49,12 @@ typedef struct
 							all observers has read the message and ite
 							can write a new messgae*/
 }msg_ty;
+/*-------------------------forward declarations-------------------------------*/
+void* ObserverThread(void* arg_);
+void* BroadcasterThread(void* arg_);
+
+void Broadcast(int* msg);
+void Observer(observer_ty* observer);
+/*----------------------------------------------------------------------------*/
+
 
