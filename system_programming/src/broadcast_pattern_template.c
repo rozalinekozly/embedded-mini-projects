@@ -122,6 +122,16 @@ void* BroadcasterThread(void* arg_)
 	/*iterate from 0 to MSG_NUM*/
 		/*get new message*/
 			/*call Broadcast() and store it's return value in local variable*/
+		/*lock mutex of shared resource*/
+			/*update message (copy local msg var to it)*/
+			/*increment message instance's version*/
+			/*notify all observers*/
+		/*unlock mutex*/
+		/*wait until all observers signaled that they finished reading this 
+		message (gave off their semaphore) call wait OBSERVE_NUM times*/
+			/*loop from 0 to OBSERVERS_NUM*/
+				/*wait*/
+	
 }
 /*----------------------------------------------------------------------------*/
 int Broadcast()
