@@ -58,7 +58,7 @@ static msg_ty g_message;
 void* ObserverThread(void* arg_);
 void* BroadcasterThread(void* arg_);
 
-void Broadcast(int* msg_);
+int Broadcast(void);
 void Observer(observer_ty* observer_);
 
 void InitMessage(void);
@@ -119,12 +119,16 @@ void* ObserverThread(void* arg_)
 /*----------------------------------------------------------------------------*/
 void* BroadcasterThread(void* arg_)
 {
-
+	/*iterate from 0 to MSG_NUM*/
+		/*get new message*/
+			/*call Broadcast() and store it's return value in local variable*/
 }
 /*----------------------------------------------------------------------------*/
-void Broadcast(int* msg_)
+int Broadcast()
 {
-
+	/*declare on a static variable (the generator)*/
+	/*increment generator by 1*/
+	/*return generator*/
 }
 /*----------------------------------------------------------------------------*/
 void Observer(observer_ty* observer_)
