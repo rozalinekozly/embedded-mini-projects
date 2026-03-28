@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "utilis.h"
+/*----------------------------------------------------------------------------*/
 #define OBSERVERS_NUM	3
 /*replace with enum*/
 #define MSG_NUM			5
@@ -42,12 +44,13 @@ typedef struct
 
 typedef struct
 {
-	int msg = 0;	/* critical resource*/
-	int msg_version = 0;	/*utilied to make sure observers do not read 
-							same message more than once */
-	int is_observed = 0;	/*this flag identifies to broadcaster that 
-							all observers has read the message and ite
-							can write a new messgae*/
+	int msg;					/* critical resource = actual messgae*/
+	int msg_version;			/*utilied to make sure observers do not read 
+						 		same message more than once */
+	sem_t observed_msg_count;	/*counts number of observers that has observed 
+							  	msg with msg_version*/
+	pthread_mutex_t lock;		/*lock for msg field*/
+	pthread_cond_t new_msg_cond;/*cond var to identify a new message*/
 }msg_ty;
 /*-------------------------forward declarations-------------------------------*/
 void* ObserverThread(void* arg_);
@@ -56,5 +59,8 @@ void* BroadcasterThread(void* arg_);
 void Broadcast(int* msg);
 void Observer(observer_ty* observer);
 /*----------------------------------------------------------------------------*/
+int main(void)
+{
 
+}
 
