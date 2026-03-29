@@ -138,17 +138,23 @@ void DestroyMessage()
 void* ConsumerThreadIMP(void* arg_)
 {
 	int i = 0;
+	int is_failed = 0;
+	
 	/*cast arg_ to consumer_ty* type*/
 	consumer_ty* consumer = (consumer_ty*)arg_;
 	/*iterate from 0 to MSG_NUM times*/
 	for(i = 0 ; i < MSG_NUM ; i++)
 	{	
 		/*lock mutex*/
-		pthread_mutex_lock(&g_message.lock);
+		is_failed = pthread_mutex_lock(&g_message.lock);
+		EXIT_IF_BAD(0 == is_failed, 1, "failed to lock mutex");
 			/*cond_wait*/
-			pthread_cond_wait(&g_message.new_msg_cond, &g_message.lock);
+			is_failed = pthread_cond_wait(&g_message.new_msg_cond, &g_message.lock);
+			EXIT_IF_BAD(0 == is_failed, 1, "failed cond wait");
 		/*unlock mutex*/
-		pthread_mutex_unlock(&g_message.lock);
+		is_failed = pthread_mutex_unlock(&g_message.lock);
+		EXIT_IF_BAD(0 == is_failed, 1, "failed to unlock mutex");
+		
 		/*if consumer's recent_version equals message's version = no new one*/
 		if(consumer->recent_version == g_message.msg_version)
 		{
