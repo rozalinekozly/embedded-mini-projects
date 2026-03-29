@@ -160,12 +160,16 @@ void* BroadcasterThread(void* arg_)
 int Broadcast()
 {
 	/*declare on a static variable (the generator)*/
+	static int ret = 0;
 	/*increment generator by 1*/
+	++ret;
 	/*return generator*/
+	return ret;
 }
 /*----------------------------------------------------------------------------*/
 void Observer(observer_ty* observer_)
 {
 	/*print observer's id and it's message */
+	printf("observer %d, received message: %d\n", observer_->id, observer_->msg);
 }
 /*----------------------------------------------------------------------------*/
