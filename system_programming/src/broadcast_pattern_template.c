@@ -142,19 +142,37 @@ void* ObserverThread(void* arg_)
 /*----------------------------------------------------------------------------*/
 void* BroadcasterThread(void* arg_)
 {
+	int i = 0;
+	int j = 0;
+	int local_msg = -1;
+
 	/*iterate from 0 to MSG_NUM*/
+	for(i = 0 ; i < MSG_NUM ; i++)
+	{
 		/*get new message*/
 			/*call Broadcast() and store it's return value in local variable*/
+			local_msg = Broadcast();
 		/*lock mutex of shared resource*/
+		pthread_mutex_lock(&g_message.lock);
 			/*update message (copy local msg var to it)*/
+			g_message.msg = local_msg;
 			/*increment message instance's version*/
+			++g_message.msg_version;
 			/*notify all observers*/
+			pthread_cond_broadcast(&g_message.new_msg_cond);
 		/*unlock mutex*/
+		pthread_mutex_unlock(&g_message.lock);
 		/*wait until all observers signaled that they finished reading this 
 		message (gave off their semaphore) call wait OBSERVE_NUM times*/
 			/*loop from 0 to OBSERVERS_NUM*/
+		for(j = 0 ; j < OBSERVERS_NUM ; j++)
+		{
 				/*wait*/
+				sem_wait(&g_message.observed_msg_count);
+		}
+	}
 	
+	return NULL;
 }
 /*----------------------------------------------------------------------------*/
 int Broadcast()
