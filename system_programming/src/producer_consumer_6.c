@@ -22,8 +22,8 @@ typedef struct
 
 typedef struct
 {
-	int msg;					/* critical resource = actual messgae*/
-	int msg_version;			/*utilied to make sure consumers do not read 
+	volatile int msg;					/* critical resource = actual messgae*/
+	volatile int msg_version;			/*utilied to make sure consumers do not read 
 						 		same message more than once */
 	sem_t observed_msg_count;	/*counts number of consumers that has consumed 
 							  	msg with msg_version*/
