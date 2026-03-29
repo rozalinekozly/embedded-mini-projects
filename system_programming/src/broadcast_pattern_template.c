@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "utilis.h"
+#include "utils.h"
 /*----------------------------------------------------------------------------*/
 #define OBSERVERS_NUM	3
 
@@ -85,33 +85,33 @@ int main(void)
 	for(i = 0; i < OBSERVERS_NUM; ++i)
 	{
 		observers[i].id = i;
-	/*traverse on observers and for each instance call pthread_create*/
-	is_failed = pthread_create(&observbers[i].observer_thrd, NULL, ObserverThread,
-								&observbers[i]);
-	/*if creation failed*/
-		/*exit*/
-	EXIT_IF_BAD(0 != is_failed, 1 , "failed at creating an observer");
-		
-	/*create a broadcaster thread via pthread_create*/
-	is_failed = pthread_create(&broadcaster, NULL, BroadcasterThread, NULL);
-	/*if failed*/
-		/*exit*/
-	EXIT_IF_BAD(0 != is_failed, 1, "failed to create a broadcaster's thread");
-		
-	/*join brodcaster's thread*/
-	is_failed = pthread_join(broadcaster, NULL);
-	/*if failed*/
-		/*exit*/
-	EXIT_IF_BAD(0 != is_failed,1, "failed to joint broadcaster thread");
-		
-	/*join observers (via loop) threads */
-	for(i = 0 i < OBSERVERS_NUM ; i++)
-	{
-		/*if failed*/
-		is_failed = pthread_join(observbers[i].observer_thrd, NULL);
+		/*traverse on observers and for each instance call pthread_create*/
+		is_failed = pthread_create(&observers[i].observer_thrd, NULL, ObserverThread,
+									&observers[i]);
+		/*if creation failed*/
 			/*exit*/
-		EXIT_IF_BAD(0 != is_failed, 1, "failed to join an observer");
+		EXIT_IF_BAD(0 == is_failed, 1 , "failed at creating an observer");
 	}
+		/*create a broadcaster thread via pthread_create*/
+		is_failed = pthread_create(&broadcaster, NULL, BroadcasterThread, NULL);
+		/*if failed*/
+			/*exit*/
+		EXIT_IF_BAD(0 == is_failed, 1, "failed to create a broadcaster's thread");
+			
+		/*join brodcaster's thread*/
+		is_failed = pthread_join(broadcaster, NULL);
+		/*if failed*/
+			/*exit*/
+		EXIT_IF_BAD(0 == is_failed,1, "failed to joint broadcaster thread");
+			
+		/*join observers (via loop) threads */
+		for(i = 0 ; i < OBSERVERS_NUM ; i++)
+		{
+			/*if failed*/
+			is_failed = pthread_join(observers[i].observer_thrd, NULL);
+				/*exit*/
+			EXIT_IF_BAD(0 == is_failed, 1, "failed to join an observer");
+		}
 		
 	/*cleanup*/
 		/*call DestroyMessage*/
@@ -131,11 +131,11 @@ void InitMessage()
 	is_failed = sem_init(&g_message.observed_msg_count, 0 ,0);
 	/*if failed*/
 		/*exit*/
-	EXIT_IF_BAD(0 != is_failed, 1, "failed init semaphore");
+	EXIT_IF_BAD(0 == is_failed, 1, "failed init semaphore");
 	/*init mutex lock (macro)*/
-	g_message.lock = PTHREAD_MUTEX_INITIALIZERL
+	pthread_mutex_init(&g_message.lock, NULL);
 	/*init condition variable (also there's a macro)*/
-	g_message.new_msg_cond = PTHREAD_COND_INITIALIZER;
+	pthread_cond_init(&g_message.new_msg_cond, NULL);
 }
 /*----------------------------------------------------------------------------*/
 void DestroyMessage()
@@ -161,7 +161,7 @@ void* ObserverThread(void* arg_)
 			/*cond_wait*/
 			pthread_cond_wait(&g_message.new_msg_cond, &g_message.lock);
 		/*unlock mutex*/
-		pthread_mutex_unlock(&g_message.lock)
+		pthread_mutex_unlock(&g_message.lock);
 		/*if observers recent_version equals message's version = no new one '*/
 		if(observer->recent_version == g_message.msg_version)
 		{
