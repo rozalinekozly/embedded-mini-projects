@@ -128,16 +128,33 @@ void DestroyMessage()
 /*----------------------------------------------------------------------------*/
 void* ObserverThread(void* arg_)
 {
+	int i = 0;
 	/*cast arg_ to observer_ty* type (maybe make this a wrapper function )*/
+	observer_ty* observer = (observer_ty*)arg_;
 	/*iterate from 0 to MSG_NUM times*/
+	for(i = 0 ; i < MSG_NUM ; i++)
+	{	
 		/*lock mutex*/
+		pthread_mutex_lock(&g_message.lock);
 			/*cond_wait*/
+			pthread_cond_wait(&g_message.new_msg_cond, &g_message.lock);
 		/*unlock mutex*/
+		pthread_mutex_unlock(&g_message.lock)
 		/*if observers recent_version equals message's version = no new one '*/
-				/*continue */
+		if(observer->recent_version == g_message.msg_version)
+		{
+			/*continue */
+			continue;
+		}	
 		/*otherwise*/
 			/*update observer's fields */
+			observer->recent_version = g_message.msg_version;
+			observer->msg = g_message.msg;
+			Observer(observer);
 		/*increment semaphore*/
+		sem_post(&g_message.observed_msg_count);
+	}
+	return NULL;
 }
 /*----------------------------------------------------------------------------*/
 void* BroadcasterThread(void* arg_)
