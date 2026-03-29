@@ -33,14 +33,14 @@ typedef struct
 /*----------------------------------------------------------------------------*/
 static msg_ty g_message;
 /*-------------------------forward declarations-------------------------------*/
-void* ConsumerThreadIMP(void* arg_);
-void* ProducerThreadIMP(void* arg_);
+static void* ConsumerThreadIMP(void* arg_);
+static void* ProducerThreadIMP(void* arg_);
 
-int ProduceMessageIMP(void);
+static int ProduceMessageIMP(void);
 void ConsumeMessageIMP(consumer_ty* consumer_);
 
-void InitMessage(void);
-void DestroyMessage(void);
+static void InitMessageIMP(void);
+static void DestroyMessageIMP(void);
 /*----------------------------------------------------------------------------*/
 int main(void)
 {
@@ -53,8 +53,8 @@ int main(void)
 	pthread_t producer = {0};
 	
 	/*create/init message's instance fields'*/
-	/*call InitMessage*/
-	InitMessage();
+	/*call InitMessageIMP*/
+	InitMessageIMP();
 	
 	/*create consumers threads*/
 	for(i = 0; i < CONSUMERS_NUM; ++i)
@@ -89,14 +89,14 @@ int main(void)
 		}
 		
 	/*cleanup*/
-		/*call DestroyMessage*/
-		DestroyMessage();
+		/*call DestroyMessageIMP*/
+		DestroyMessageIMP();
 		
 	/*return 0*/
 	return 0;
 }
 /*----------------------------------------------------------------------------*/
-void InitMessage()
+static void InitMessageIMP()
 {
 	int is_failed = 0;
 	/*init message (shared resource) fields*/
@@ -115,7 +115,7 @@ void InitMessage()
 	EXIT_IF_BAD(0 == is_failed, 1, "failed init condition variable");
 }
 /*----------------------------------------------------------------------------*/
-void DestroyMessage()
+static void DestroyMessageIMP()
 {
 	int is_failed = 0;
 	/*destroy semaphore*/
@@ -135,7 +135,7 @@ void DestroyMessage()
 	EXIT_IF_BAD(0 == is_failed, 1, "failed destroy cond var");
 }
 /*----------------------------------------------------------------------------*/
-void* ConsumerThreadIMP(void* arg_)
+static void* ConsumerThreadIMP(void* arg_)
 {
 	int i = 0;
 	int is_failed = 0;
@@ -173,7 +173,7 @@ void* ConsumerThreadIMP(void* arg_)
 	return NULL;
 }
 /*----------------------------------------------------------------------------*/
-void* ProducerThreadIMP(void* arg_)
+static void* ProducerThreadIMP(void* arg_)
 {
 	int i = 0;
 	int j = 0;
@@ -214,7 +214,7 @@ void* ProducerThreadIMP(void* arg_)
 	return NULL;
 }
 /*----------------------------------------------------------------------------*/
-int ProduceMessageIMP()
+static int ProduceMessageIMP()
 {
 	/*declare on a static variable (the generator)*/
 	static int ret = 0;
