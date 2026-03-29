@@ -1,37 +1,11 @@
-/*
-	this code writes my implementation of a design pattern Observer / Broadcast 
-	pattern via POSIX sync mechansims
-	which are : mutex, semaphores, condition variabels.
-*/
+#include <pthread.h>   /* pthread_t, pthread_create, pthread_join, pthread_mutex_t,
+                         pthread_cond_t and their related functions */
+#include <semaphore.h> /*sem_t, sem_init, sem_wait, sem_post, sem_destroy */
+#include <stdio.h>     /* printf */
 
-/* quick explanation of the design pattern */
-/*
-	(wikipidia) 
-	- it's a design pattern, which an object (subject/ event source/ event stream)
-	maintains a list of it's dependencies (observers) and automatically notify them 
-	of any state changes.
-	- one to many dependincies 
-*/
-
-/*
-	problems to be solved:
-	1- no race consition: either observbers / broadcaster enter the critical
-	section (message)
-	2- notification: observers must know a new message has sent 
-	3- all observers can access to same shared message "togather" (no synching
-	 here)
-	4- avoid duplication: avoid same observer to read same message more than once
-	5- avoid busy waiting
-*/
-
-#include <pthread.h>
-#include <semaphore.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include "utils.h"
+#include "utils.h"	  /*EXIT_IF_BAD*/
 /*----------------------------------------------------------------------------*/
-#define OBSERVERS_NUM	3
+#define CONSUMERS_NUM	3
 
 enum
 {
@@ -40,18 +14,18 @@ enum
 /*----------------------------------------------------------------------------*/
 typedef struct
 {
-    int id;				/*observer id (to print)*/
-    int recent_version;		/*marks recent version the observer has read*/
+    int id;					/*consumer id (to print)*/
+    int recent_version;		/*marks recent version the consumer has read*/
     int msg;				/*recent version msg (for prinitng)*/
-    pthread_t observer_thrd;	/*handle for observer's thread*/
-} observer_ty;
+    pthread_t consumer_thrd;	/*handle for consumer's thread*/
+} consumer_ty;
 
 typedef struct
 {
 	int msg;					/* critical resource = actual messgae*/
-	int msg_version;			/*utilied to make sure observers do not read 
+	int msg_version;			/*utilied to make sure consumers do not read 
 						 		same message more than once */
-	sem_t observed_msg_count;	/*counts number of observers that has observed 
+	sem_t observed_msg_count;	/*counts number of consumers that has consumed 
 							  	msg with msg_version*/
 	pthread_mutex_t lock;		/*lock for msg field*/
 	pthread_cond_t new_msg_cond;/*cond var to identify a new message*/
@@ -59,11 +33,11 @@ typedef struct
 /*----------------------------------------------------------------------------*/
 static msg_ty g_message;
 /*-------------------------forward declarations-------------------------------*/
-void* ObserverThread(void* arg_);
-void* BroadcasterThread(void* arg_);
+void* ConsumerThreadIMP(void* arg_);
+void* ProducerThreadIMP(void* arg_);
 
-int Broadcast(void);
-void Observer(observer_ty* observer_);
+int ProduceMessageIMP(void);
+void ConsumeMessageIMP(consumer_ty* consumer_);
 
 void InitMessage(void);
 void DestroyMessage(void);
@@ -72,45 +46,46 @@ int main(void)
 {
 	int i = 0;
 	int is_failed = 0;
-	/*declare on observers array intilaized to {0}*/
-	observer_ty observers[OBSERVERS_NUM] = {0};
-	/*declare on brodcaster, intialized to {0}*/
-	pthread_t broadcaster = {0};
+	
+	/*declare on consumers array intilaized to {0}*/
+	consumer_ty consumers[CONSUMERS_NUM] = {0};
+	/*declare on producer, intialized to {0}*/
+	pthread_t producer = {0};
 	
 	/*create/init message's instance fields'*/
 	/*call InitMessage*/
 	InitMessage();
 	
-	/*create observers threads*/
-	for(i = 0; i < OBSERVERS_NUM; ++i)
+	/*create consumers threads*/
+	for(i = 0; i < CONSUMERS_NUM; ++i)
 	{
-		observers[i].id = i;
-		/*traverse on observers and for each instance call pthread_create*/
-		is_failed = pthread_create(&observers[i].observer_thrd, NULL, ObserverThread,
-									&observers[i]);
+		consumers[i].id = i;
+		/*traverse on consumers and for each instance call pthread_create*/
+		is_failed = pthread_create(&consumers[i].consumer_thrd, NULL, ConsumerThreadIMP,
+									&consumers[i]);
 		/*if creation failed*/
 			/*exit*/
-		EXIT_IF_BAD(0 == is_failed, 1 , "failed at creating an observer");
+		EXIT_IF_BAD(0 == is_failed, 1 , "failed at creating a consumer");
 	}
-		/*create a broadcaster thread via pthread_create*/
-		is_failed = pthread_create(&broadcaster, NULL, BroadcasterThread, NULL);
+		/*create a producer thread via pthread_create*/
+		is_failed = pthread_create(&producer, NULL, ProducerThreadIMP, NULL);
 		/*if failed*/
 			/*exit*/
-		EXIT_IF_BAD(0 == is_failed, 1, "failed to create a broadcaster's thread");
+		EXIT_IF_BAD(0 == is_failed, 1, "failed to create a producer's thread");
 			
-		/*join brodcaster's thread*/
-		is_failed = pthread_join(broadcaster, NULL);
+		/*join producer's thread*/
+		is_failed = pthread_join(producer, NULL);
 		/*if failed*/
 			/*exit*/
-		EXIT_IF_BAD(0 == is_failed,1, "failed to joint broadcaster thread");
+		EXIT_IF_BAD(0 == is_failed,1, "failed to join producer thread");
 			
-		/*join observers (via loop) threads */
-		for(i = 0 ; i < OBSERVERS_NUM ; i++)
+		/*join consumers (via loop) threads */
+		for(i = 0 ; i < CONSUMERS_NUM ; i++)
 		{
 			/*if failed*/
-			is_failed = pthread_join(observers[i].observer_thrd, NULL);
+			is_failed = pthread_join(consumers[i].consumer_thrd, NULL);
 				/*exit*/
-			EXIT_IF_BAD(0 == is_failed, 1, "failed to join an observer");
+			EXIT_IF_BAD(0 == is_failed, 1, "failed to join a consumer");
 		}
 		
 	/*cleanup*/
@@ -132,15 +107,15 @@ void InitMessage()
 	/*if failed*/
 		/*exit*/
 	EXIT_IF_BAD(0 == is_failed, 1, "failed init semaphore");
-	/*init mutex lock (macro)*/
+	/*init mutex lock*/
 	pthread_mutex_init(&g_message.lock, NULL);
-	/*init condition variable (also there's a macro)*/
+	/*init condition variable*/
 	pthread_cond_init(&g_message.new_msg_cond, NULL);
 }
 /*----------------------------------------------------------------------------*/
 void DestroyMessage()
 {
-	/*dsetroy semaphore*/
+	/*destroy semaphore*/
 	sem_destroy(&g_message.observed_msg_count);
 	/*destroy mutex*/
 	pthread_mutex_destroy(&g_message.lock);
@@ -148,11 +123,11 @@ void DestroyMessage()
 	pthread_cond_destroy(&g_message.new_msg_cond);
 }
 /*----------------------------------------------------------------------------*/
-void* ObserverThread(void* arg_)
+void* ConsumerThreadIMP(void* arg_)
 {
 	int i = 0;
-	/*cast arg_ to observer_ty* type (maybe make this a wrapper function )*/
-	observer_ty* observer = (observer_ty*)arg_;
+	/*cast arg_ to consumer_ty* type*/
+	consumer_ty* consumer = (consumer_ty*)arg_;
 	/*iterate from 0 to MSG_NUM times*/
 	for(i = 0 ; i < MSG_NUM ; i++)
 	{	
@@ -162,24 +137,24 @@ void* ObserverThread(void* arg_)
 			pthread_cond_wait(&g_message.new_msg_cond, &g_message.lock);
 		/*unlock mutex*/
 		pthread_mutex_unlock(&g_message.lock);
-		/*if observers recent_version equals message's version = no new one '*/
-		if(observer->recent_version == g_message.msg_version)
+		/*if consumer's recent_version equals message's version = no new one*/
+		if(consumer->recent_version == g_message.msg_version)
 		{
 			/*continue */
 			continue;
 		}	
 		/*otherwise*/
-			/*update observer's fields */
-			observer->recent_version = g_message.msg_version;
-			observer->msg = g_message.msg;
-			Observer(observer);
+			/*update consumer's fields */
+			consumer->recent_version = g_message.msg_version;
+			consumer->msg = g_message.msg;
+			ConsumeMessageIMP(consumer);
 		/*increment semaphore*/
 		sem_post(&g_message.observed_msg_count);
 	}
 	return NULL;
 }
 /*----------------------------------------------------------------------------*/
-void* BroadcasterThread(void* arg_)
+void* ProducerThreadIMP(void* arg_)
 {
 	int i = 0;
 	int j = 0;
@@ -189,22 +164,22 @@ void* BroadcasterThread(void* arg_)
 	for(i = 0 ; i < MSG_NUM ; i++)
 	{
 		/*get new message*/
-			/*call Broadcast() and store it's return value in local variable*/
-			local_msg = Broadcast();
+			/*call ProduceMessageIMP() and store it's return value in local variable*/
+			local_msg = ProduceMessageIMP();
 		/*lock mutex of shared resource*/
 		pthread_mutex_lock(&g_message.lock);
 			/*update message (copy local msg var to it)*/
 			g_message.msg = local_msg;
 			/*increment message instance's version*/
 			++g_message.msg_version;
-			/*notify all observers*/
+			/*notify all consumers*/
 			pthread_cond_broadcast(&g_message.new_msg_cond);
 		/*unlock mutex*/
 		pthread_mutex_unlock(&g_message.lock);
-		/*wait until all observers signaled that they finished reading this 
-		message (gave off their semaphore) call wait OBSERVE_NUM times*/
-			/*loop from 0 to OBSERVERS_NUM*/
-		for(j = 0 ; j < OBSERVERS_NUM ; j++)
+		/*wait until all consumers signaled that they finished reading this 
+		message (gave off their semaphore) call wait CONSUMERS_NUM times*/
+			/*loop from 0 to CONSUMERS_NUM*/
+		for(j = 0 ; j < CONSUMERS_NUM ; j++)
 		{
 				/*wait*/
 				sem_wait(&g_message.observed_msg_count);
@@ -214,7 +189,7 @@ void* BroadcasterThread(void* arg_)
 	return NULL;
 }
 /*----------------------------------------------------------------------------*/
-int Broadcast()
+int ProduceMessageIMP()
 {
 	/*declare on a static variable (the generator)*/
 	static int ret = 0;
@@ -224,9 +199,9 @@ int Broadcast()
 	return ret;
 }
 /*----------------------------------------------------------------------------*/
-void Observer(observer_ty* observer_)
+void ConsumeMessageIMP(consumer_ty* consumer_)
 {
-	/*print observer's id and it's message */
-	printf("observer %d, received message: %d\n", observer_->id, observer_->msg);
+	/*print consumer's id and its message */
+	printf("consumer %d, received message: %d\n", consumer_->id, consumer_->msg);
 }
 /*----------------------------------------------------------------------------*/
