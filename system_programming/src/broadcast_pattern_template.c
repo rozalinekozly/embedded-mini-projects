@@ -32,12 +32,15 @@
 #include "utilis.h"
 /*----------------------------------------------------------------------------*/
 #define OBSERVERS_NUM	3
-/*replace with enum*/
-#define MSG_NUM			5
+
+enum
+{
+	MSG_NUM = 5
+};
 /*----------------------------------------------------------------------------*/
 typedef struct
 {
-    int id;			/*observer id (to print)*/
+    int id;				/*observer id (to print)*/
     int recent_version;		/*marks recent version the observer has read*/
     int msg;				/*recent version msg (for prinitng)*/
     pthread_t observer_thrd;	/*handle for observer's thread*/
@@ -98,19 +101,29 @@ int main(void)
 /*----------------------------------------------------------------------------*/
 void InitMessage()
 {
+	int is_failed = 0;
 	/*init message (shared resource) fields*/
+	g_message.msg = 0;
+	g_message.msg_version = 0;
 	/*init semaphore*/
+	is_failed = sem_init(&g_message.observed_msg_count, 0 ,0);
 	/*if failed*/
 		/*exit*/
+	EXIT_IF_BAD(0 != is_failed, 1, "failed init semaphore");
 	/*init mutex lock (macro)*/
+	g_message.lock = PTHREAD_MUTEX_INITIALIZERL
 	/*init condition variable (also there's a macro)*/
+	g_message.new_msg_cond = PTHREAD_COND_INITIALIZER;
 }
 /*----------------------------------------------------------------------------*/
 void DestroyMessage()
 {
 	/*dsetroy semaphore*/
+	sem_destroy(&g_message.observed_msg_count);
 	/*destroy mutex*/
+	pthread_mutex_destroy(&g_message.lock);
 	/*destroy cond var*/
+	pthread_cond_destroy(&g_message.new_msg_cond);
 }
 /*----------------------------------------------------------------------------*/
 void* ObserverThread(void* arg_)
