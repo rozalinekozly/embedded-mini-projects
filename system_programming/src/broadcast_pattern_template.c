@@ -70,33 +70,55 @@ void DestroyMessage(void);
 /*----------------------------------------------------------------------------*/
 int main(void)
 {
+	int i = 0;
+	int is_failed = 0;
 	/*declare on observers array intilaized to {0}*/
+	observer_ty observers[OBSERVERS_NUM] = {0};
 	/*declare on brodcaster, intialized to {0}*/
+	pthread_t broadcaster = {0};
 	
 	/*create/init message's instance fields'*/
 	/*call InitMessage*/
+	InitMessage();
 	
 	/*create observers threads*/
+	for(i = 0; i < OBSERVERS_NUM; ++i)
+	{
+		observers[i].id = i;
 	/*traverse on observers and for each instance call pthread_create*/
+	is_failed = pthread_create(&observbers[i].observer_thrd, NULL, ObserverThread,
+								&observbers[i]);
 	/*if creation failed*/
 		/*exit*/
+	EXIT_IF_BAD(0 != is_failed, 1 , "failed at creating an observer");
 		
 	/*create a broadcaster thread via pthread_create*/
+	is_failed = pthread_create(&broadcaster, NULL, BroadcasterThread, NULL);
 	/*if failed*/
 		/*exit*/
+	EXIT_IF_BAD(0 != is_failed, 1, "failed to create a broadcaster's thread");
 		
 	/*join brodcaster's thread*/
+	is_failed = pthread_join(broadcaster, NULL);
 	/*if failed*/
 		/*exit*/
+	EXIT_IF_BAD(0 != is_failed,1, "failed to joint broadcaster thread");
 		
 	/*join observers (via loop) threads */
-	/*if failed*/
-		/*exit*/
+	for(i = 0 i < OBSERVERS_NUM ; i++)
+	{
+		/*if failed*/
+		is_failed = pthread_join(observbers[i].observer_thrd, NULL);
+			/*exit*/
+		EXIT_IF_BAD(0 != is_failed, 1, "failed to join an observer");
+	}
 		
 	/*cleanup*/
 		/*call DestroyMessage*/
+		DestroyMessage();
 		
 	/*return 0*/
+	return 0;
 }
 /*----------------------------------------------------------------------------*/
 void InitMessage()
