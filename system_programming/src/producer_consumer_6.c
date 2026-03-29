@@ -177,6 +177,7 @@ void* ProducerThreadIMP(void* arg_)
 	int i = 0;
 	int j = 0;
 	int local_msg = -1;
+	int is_failed = 0;
 
 	/*iterate from 0 to MSG_NUM*/
 	for(i = 0 ; i < MSG_NUM ; i++)
@@ -185,7 +186,8 @@ void* ProducerThreadIMP(void* arg_)
 			/*call ProduceMessageIMP() and store it's return value in local variable*/
 			local_msg = ProduceMessageIMP();
 		/*lock mutex of shared resource*/
-		pthread_mutex_lock(&g_message.lock);
+		is_failed = pthread_mutex_lock(&g_message.lock);
+		EXIT_IF_BAD(0 == is_failed, 1, "failed to lock mutex");
 			/*update message (copy local msg var to it)*/
 			g_message.msg = local_msg;
 			/*increment message instance's version*/
@@ -194,13 +196,15 @@ void* ProducerThreadIMP(void* arg_)
 			pthread_cond_broadcast(&g_message.new_msg_cond);
 		/*unlock mutex*/
 		pthread_mutex_unlock(&g_message.lock);
+		EXIT_IF_BAD(0 == is_failed, 1, "failed to unlock mutex");
 		/*wait until all consumers signaled that they finished reading this 
 		message (gave off their semaphore) call wait CONSUMERS_NUM times*/
 			/*loop from 0 to CONSUMERS_NUM*/
 		for(j = 0 ; j < CONSUMERS_NUM ; j++)
 		{
 				/*wait*/
-				sem_wait(&g_message.observed_msg_count);
+				is_failed = sem_wait(&g_message.observed_msg_count);
+				EXIT_IF_BAD(0 == is_failed, 1, "failed sem wait");
 		}
 	}
 	
