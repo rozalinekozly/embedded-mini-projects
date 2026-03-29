@@ -117,12 +117,22 @@ void InitMessage()
 /*----------------------------------------------------------------------------*/
 void DestroyMessage()
 {
+	int is_failed = 0;
 	/*destroy semaphore*/
-	sem_destroy(&g_message.observed_msg_count);
+	is_failed = sem_destroy(&g_message.observed_msg_count);
+	/*if failed*/
+		/*exit*/
+	EXIT_IF_BAD(0 == is_failed, 1, "failed destroy semaphore");
 	/*destroy mutex*/
-	pthread_mutex_destroy(&g_message.lock);
+	is_failed = pthread_mutex_destroy(&g_message.lock);
+	/*if failed*/
+		/*exit*/
+	EXIT_IF_BAD(0 == is_failed, 1, "failed destroy mutex");
 	/*destroy cond var*/
-	pthread_cond_destroy(&g_message.new_msg_cond);
+	is_failed = pthread_cond_destroy(&g_message.new_msg_cond);
+	/*if failed*/
+		/*exit*/
+	EXIT_IF_BAD(0 == is_failed, 1, "failed destroy cond var");
 }
 /*----------------------------------------------------------------------------*/
 void* ConsumerThreadIMP(void* arg_)
