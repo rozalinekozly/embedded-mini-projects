@@ -123,7 +123,6 @@ void* ObserverThread(void* arg_)
 		/*if observers recent_version equals message's version = no new one '*/
 				/*continue */
 		/*otherwise*/
-			/*decrement semaphore*/
 			/*update observer's fields */
 		/*increment semaphore*/
 }
