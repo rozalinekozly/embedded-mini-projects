@@ -108,9 +108,11 @@ void InitMessage()
 		/*exit*/
 	EXIT_IF_BAD(0 == is_failed, 1, "failed init semaphore");
 	/*init mutex lock*/
-	pthread_mutex_init(&g_message.lock, NULL);
+	is_failed = pthread_mutex_init(&g_message.lock, NULL);
+	EXIT_IF_BAD(0 == is_failed, 1, "failed init mutex");
 	/*init condition variable*/
-	pthread_cond_init(&g_message.new_msg_cond, NULL);
+	is_failed = pthread_cond_init(&g_message.new_msg_cond, NULL);
+	EXIT_IF_BAD(0 == is_failed, 1, "failed init condition variable");
 }
 /*----------------------------------------------------------------------------*/
 void DestroyMessage()
