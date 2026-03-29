@@ -167,7 +167,8 @@ void* ConsumerThreadIMP(void* arg_)
 			consumer->msg = g_message.msg;
 			ConsumeMessageIMP(consumer);
 		/*increment semaphore*/
-		sem_post(&g_message.observed_msg_count);
+		is_failed = sem_post(&g_message.observed_msg_count);
+		EXIT_IF_BAD(0 == is_failed, 1, "failed sem post");
 	}
 	return NULL;
 }
@@ -193,9 +194,10 @@ void* ProducerThreadIMP(void* arg_)
 			/*increment message instance's version*/
 			++g_message.msg_version;
 			/*notify all consumers*/
-			pthread_cond_broadcast(&g_message.new_msg_cond);
+			is_failed = pthread_cond_broadcast(&g_message.new_msg_cond);
+			EXIT_IF_BAD(0 == is_failed, 1, "failed cond broadcast");
 		/*unlock mutex*/
-		pthread_mutex_unlock(&g_message.lock);
+		is_failed = pthread_mutex_unlock(&g_message.lock);
 		EXIT_IF_BAD(0 == is_failed, 1, "failed to unlock mutex");
 		/*wait until all consumers signaled that they finished reading this 
 		message (gave off their semaphore) call wait CONSUMERS_NUM times*/
