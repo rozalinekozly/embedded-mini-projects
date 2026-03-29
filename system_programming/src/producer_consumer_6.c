@@ -180,6 +180,7 @@ void* ProducerThreadIMP(void* arg_)
 	int local_msg = -1;
 	int is_failed = 0;
 
+	(void)arg_;
 	/*iterate from 0 to MSG_NUM*/
 	for(i = 0 ; i < MSG_NUM ; i++)
 	{
