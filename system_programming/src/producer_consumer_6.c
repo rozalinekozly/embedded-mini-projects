@@ -203,6 +203,7 @@ static void* ProducerThreadIMP(void* arg_)
 		is_failed = pthread_mutex_unlock(&g_message.lock);
 		EXIT_IF_BAD(0 == is_failed, 1, "failed to unlock mutex");
 		
+		
 		/*do work, while consumers are consuming msg */
 		if(i < MSG_NUM - 1)
         {

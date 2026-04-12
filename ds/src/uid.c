@@ -15,9 +15,10 @@ stage : writing code
 
 #include "uid.h"        /* API            */
 /*---------------------------------------------------------------------------*/
+typedef volatile size_t atomic_ty;
+/*---------------------------------------------------------------------------*/
 const uid_ty invalid_uid_g = {0};
-static size_t uid_counter = 0;
-
+static atomic_ty uid_counter = 0;
 /*---------------------------------------------------------------------------*/
 /* Internal helper to find and copy the IP into the struct's array */
 static void SetIp(char* ip_buffer)
@@ -58,7 +59,7 @@ uid_ty UidCreate(void)
 {
     uid_ty new_uid = {0};
 
-    new_uid.counter = ++uid_counter;
+    new_uid.counter = __atomic_add_fetch(&uid_counter, 1, __ATOMIC_RELAXED);
     /*check if failed */
     new_uid.time = time(NULL);
     
