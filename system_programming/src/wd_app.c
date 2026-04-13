@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 {
 	scheduler_ty* sch = NULL;
 	uid_ty task_id = {0};
-	client_ty client = {0}
+	client_ty client = {0};
 	
 	/*asserts*/
 	/*if argc < 3 */
@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
 /*-----------------------------------------------------------------------------*/
 static sch_op_status_ty ReviveIfNotAliveIMP(void* param_)
 {
-	client_ty* client = {0};
+	client_ty* client = NULL;
 	/*assertions*/
-	assert(NULL != param);
+	assert(NULL != param_);
 	/*cast param to client_ty*/
 	client = (client_ty*)param;
 	
