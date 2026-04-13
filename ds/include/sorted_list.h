@@ -41,7 +41,7 @@ typedef int (*sorted_list_action_func_ty)(void* data, void* param);
 *		passed with "param".
 *	Function should return 1 on success and 0 on failure.
 ******************************************************************************/
-typedef int (*sorted_list_is_match_func_ty)(const void* data, void* param);
+typedef int (*sorted_list_is_match_func_ty)(void* data, void* param);
 
 /****************************************************************************** 
 * 	Description:

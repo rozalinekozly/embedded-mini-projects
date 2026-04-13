@@ -23,14 +23,14 @@ typedef enum bool
 * 		0 < result if data2 comes before data1,
 *		0 == result if data1 and data2 are equal
 ******************************************************************************/
-typedef int (*pq_cmp_ty)(const void* data1, const void* data2, const void* param);
+typedef int (*pq_cmp_ty)(const void* data1, const void* data2, void* param);
 
 /****************************************************************************** 
 *   Function receives element's data ("data"), any other parameter may be
 *		passed with "param".
 *	Function should return 1 if match was found, or 0 otherwise.
 ******************************************************************************/
-typedef int (*pq_is_match_ty)(const void* data, const void* param);
+typedef int (*pq_is_match_ty)( void* data,  void* param);
 
 /****************************************************************************** 
 * 	Description:
@@ -42,7 +42,7 @@ typedef int (*pq_is_match_ty)(const void* data, const void* param);
 * 		cmp is NULL
 * 	O(1)
 ******************************************************************************/
-pq_ty* PQCreate(pq_cmp_ty cmp, const void* param);
+pq_ty* PQCreate(pq_cmp_ty cmp,  void* param);
 
 /****************************************************************************** 
 * 	Description:
@@ -110,7 +110,7 @@ void* PQDequeue(pq_ty* q);
 *		"is_match" is NULL
 *   O(n)
 ******************************************************************************/
-void* PQRemove(pq_ty* q, pq_is_match_ty is_match, const void* param);
+void* PQRemove(pq_ty* q, pq_is_match_ty is_match, void* param);
 
 /****************************************************************************** 
 *   Description:

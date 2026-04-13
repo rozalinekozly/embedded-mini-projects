@@ -17,7 +17,7 @@ struct pq
     sorted_list_ty* lst;
 };
 /*---------------------------implementations ---------------------------------*/
-pq_ty* PQCreate(pq_cmp_ty cmp, const void* param)
+pq_ty* PQCreate(pq_cmp_ty cmp, void* param)
 {
     pq_ty* q = (pq_ty*)malloc(sizeof(pq_ty));
     if (NULL == q)
@@ -65,7 +65,7 @@ pq_status_ty PQEnqueue(pq_ty* q, void* data)
     
     assert(NULL != q);
     
-    /* iter points to the newely inserted node (if PQ_SUCCESS) or EndIter (if PQ_PQ_FAILd) */
+    /* iter points to the newely inserted node (if PQ_SUCCESS) or EndIter (if PQ_FAILed) */
     iter = SortedListInsert(q->lst, data);
     if (SortedListIterIsEqual(iter, SortedListEndIter(q->lst)))
     {
@@ -96,7 +96,7 @@ void* PQPeek(const pq_ty* q)
     return SortedListIterGetData(SortedListBeginIter(q->lst));
 }
 /*----------------------------------------------------------------------------*/
-void* PQRemove(pq_ty* q, pq_is_match_ty is_match, const void* param)
+void* PQRemove(pq_ty* q, pq_is_match_ty is_match, void* param)
 {
     sorted_list_iter_ty iter_to_rmv = {0};
     void* data = NULL;
@@ -119,3 +119,4 @@ void* PQRemove(pq_ty* q, pq_is_match_ty is_match, const void* param)
 
     return data;
 }
+

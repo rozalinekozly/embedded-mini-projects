@@ -28,7 +28,7 @@ struct scheduler
 /*---------------------------aux functions -------------------------------------*/
 static void HandleFailure(scheduler_ty* sch);
 static int TaskCmp(const void* task1, const void* task2, void* param);
-static int WrapperIsMatchId(const void* data1, void* data2);
+static int WrapperIsMatchId( void* data1, void* data2);
 /*-----------------------------------------------------------------------------*/
 scheduler_ty* SchedulerCreate(void)
 {
@@ -234,7 +234,7 @@ static int TaskCmp(const void* task1, const void* task2, void* param)
 						TaskGetTimeToRun((task_ty*)task2));
 }
 /*-----------------------------------------------------------------------------*/
-static int WrapperIsMatchId(const void* data1, void* data2)
+static int WrapperIsMatchId( void* data1, void* data2)
 {
 	return IsMatchId(TaskGetUID((task_ty*)data1), *(uid_ty*)data2);
 }
