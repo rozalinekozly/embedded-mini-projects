@@ -39,12 +39,24 @@ all:
 	done
 	@echo "$(YELLOW)--- all targets built in debug mode ---$(RESET)"
 git:
-	@files=$$(find . -type f -mmin -60 ! -path "./.git/*"); \
-	if [ -z "$$files" ]; then \
+	@recent=$$(find . -type f -mmin -60 ! -path "./.git/*"); \
+	if [ -z "$$recent" ]; then \
 		echo "$(YELLOW)no recent files found$(RESET)"; \
 		exit 0; \
 	fi; \
-	echo "$(YELLOW)recent files (last 60 min):$(RESET)"; \
+	files=""; \
+	for f in $$recent; do \
+		status=$$(git status --short "$$f" 2>/dev/null); \
+		if [ -n "$$status" ]; then \
+			files="$$files $$f"; \
+		fi; \
+	done; \
+	files=$$(echo $$files | xargs); \
+	if [ -z "$$files" ]; then \
+		echo "$(GREEN)nothing new to push — all recent files are already up to date$(RESET)"; \
+		exit 0; \
+	fi; \
+	echo "$(YELLOW)unpushed/modified files (last 60 min):$(RESET)"; \
 	i=1; \
 	for f in $$files; do \
 		echo "$$i) $$f"; \
@@ -69,3 +81,18 @@ git:
 clear:
 	@rm -f $(TARGETS)
 	@echo "$(YELLOW)--- binaries removed ---$(RESET)"
+	
+wd_app:
+	@$(CC) -Wall -Wextra -g \
+		src/wd_app.c \
+		../ds/src/scheduler.c \
+		../ds/src/task.c \
+		../ds/src/uid.c \
+		../ds/src/pqueue.c \
+		../ds/src/sorted_list.c \
+		../ds/src/dlist.c \
+		-I ../ds/include \
+		-I ../utils/include \
+		-lm -lpthread \
+		-o wd_app && \
+	echo "$(GREEN)--- wd_app built ---$(RESET)"
