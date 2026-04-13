@@ -1,6 +1,17 @@
 /*
 	watch dog app version 2: user input <wd_app_exe> <frequency_check> <client_app>
 */
+TODO:
+- add utils before (generic stuff first in order)
+- add suffix of tasks to be TSK and remove IMP suffix
+- add prefix m_ for structs fields 
+- add atoi check (atoi > 0 since it's not a vaild value for us)
+- change scheduler to support for users to pass an empty function for cleanup(does nothing).
+- give perameters more meaningful names
+- add check if scheduler runningfailed SCH_FAIL
+- use getppid to check validity rather than kill 0 
+- errno of kill check it! 
+- 
 /*-----------------------------------------------------------------------------*/
 #define _POSIX_SOURCE
 #include <signal.h>		/* kill */
