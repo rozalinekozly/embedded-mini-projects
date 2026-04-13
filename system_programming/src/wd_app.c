@@ -68,7 +68,7 @@ static sch_op_status_ty ReviveIfNotAliveIMP(void* param_)
 	/*assertions*/
 	assert(NULL != param_);
 	/*cast param to client_ty*/
-	client = (client_ty*)param;
+	client = (client_ty*)param_;
 	
 	/*send client app instance a signal via kill 0*/
 	/*if fails (client is dead)*/
