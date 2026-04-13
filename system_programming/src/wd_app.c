@@ -2,9 +2,8 @@
 	watch dog app version 2: user input <wd_app_exe> <frequency_check> <client_app>
 */
 /*TODO:
-- add utils before (generic stuff first in order)
-- add suffix of tasks to be TSK and remove IMP suffix
-- add prefix m_ for structs fields 
+
+
 - add atoi check (atoi > 0 since it's not a vaild value for us)
 - change scheduler to support for users to pass an empty function for cleanup(does nothing).
 - give perameters more meaningful names
@@ -19,20 +18,20 @@
 #include <stdlib.h>		/* atoi*/
 #include <assert.h>		/* assert  */
 /*-----------------------------------------------------------------------------*/
-#include "scheduler.h"
 #include "utils.h"
+#include "scheduler.h"
 /*-----------------------------------------------------------------------------*/
 typedef struct
 {
-	pid_t pid;
-	char** client_cmd;
-	int frequency_check;
+	pid_t m_pid;
+	char** m_client_cmd;
+	int m_frequency_check;
 }client_ty;
 /*-----------------------------------------------------------------------------*/
 #define UNUSED(x)	(void)x
 /*-----------------------------------------------------------------------------*/
 /*forward declarations*/
-static sch_op_status_ty ReviveIfNotAliveIMP(void*);
+static sch_op_status_ty ReviveIfNotAliveTSK(void*);
 static void RevivalCleanupIMP(void*);
 /*-----------------------------------------------------------------------------*/
 int main(int argc, char* argv[])
@@ -48,19 +47,20 @@ int main(int argc, char* argv[])
 	
 	/*init client's fields*/
 		/*set frequency_check as argv[1] (convert to int)*/
-		client.frequency_check = atoi(argv[1]);
+		client.m_frequency_check = atoi(argv[1]);
+		EXIT_IF_BAD(client.m_frequency_check > 0, 1, "invaliud arguments");
 		/*set client_cmd as argv + 2)*/
-		client.client_cmd = argv + 2;
+		client.m_client_cmd = argv + 2;
 		/*set clent pid as parent pid via ppid*/
-		client.pid = getppid();
+		client.m_pid = getppid();
 	
 	/*create a scheduler*/
 	sch = SchedulerCreate();
 	/*handle failure*/
 	EXIT_IF_BAD(NULL != sch, 1, "scheduler creation failed");
-	/*add task to scheduler with frequency_check as an interval, op_func as ReviveIfNotAliveIMP,
+	/*add task to scheduler with frequency_check as an interval, op_func as ReviveIfNotAliveTSK,
 	op_param &client instance, clean_func = dummy cleanup func, clean_param is null*/
-	task_id = SchedulerAddTask(sch, client.frequency_check, ReviveIfNotAliveIMP,
+	task_id = SchedulerAddTask(sch, client.frequency_check, ReviveIfNotAliveTSK,
 								&client, RevivalCleanupIMP, NULL);
 	/*handle failure*/
 	EXIT_IF_BAD(!IsMatchId(invalid_uid_g, task_id), 1, "failed to add task");
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 /*-----------------------------------------------------------------------------*/
-static sch_op_status_ty ReviveIfNotAliveIMP(void* param_)
+static sch_op_status_ty ReviveIfNotAliveTSK(void* param_)
 {
 	client_ty* client = NULL;
 	/*assertions*/
@@ -87,7 +87,7 @@ static sch_op_status_ty ReviveIfNotAliveIMP(void* param_)
 	if (-1 == kill(client->pid, 0))
 	{
 		/*execvp(client_cmd[0], client_cmd)*/
-		execvp(client->client_cmd[0], client->client_cmd);
+		execvp(client->m_client_cmd[0], client->m_client_cmd);
 		/*execvp failed*/
 			/*return SCH_NOT_REPEAT*/
 			return SCH_NOT_REPEAT;
