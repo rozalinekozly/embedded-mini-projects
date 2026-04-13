@@ -3,9 +3,9 @@
 */
 /*-----------------------------------------------------------------------------*/
 #include <signal.h>		/* kill */
-#include <unistd.h>		/* getppid, execvp */
-#include <stdlib.h>		/* atoi */
-#include <assert.h>		/* assert */
+#include <unistd.h>		/* getppid, execvp*/
+#include <stdlib.h>		/* atoi*/
+#include <assert.h>		/* assert  */
 /*-----------------------------------------------------------------------------*/
 #include "scheduler.h"
 #include "utils.h"
@@ -25,28 +25,40 @@ static void RevivalCleanupIMP(void*);
 /*-----------------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
+	scheduler_ty* sch = NULL;
+	uid_ty task_id = {0};
+	client_ty client = {0}
+	
 	/*asserts*/
 	/*if argc < 3 */
 		/*exit*/
+	EXIT_IF_BAD(3 <= argc, 1, "Invalid arguments");
 	
-	/*declare client_ty struct*/
-	/*init it's fields*/
+	/*init client's fields*/
 		/*set frequency_check as argv[1] (convert to int)*/
+		client.frequency_check = atoi(argv[1]);
 		/*set client_cmd as argv + 2)*/
+		client.client_cmd = argv + 2;
 		/*set clent pid as parent pid via ppid*/
+		client.pid = getppid();
 	
 	/*create a scheduler*/
+	sch = SchedulerCreate();
 	/*handle failure*/
-	
+	EXIT_IF_BAD(NULL != sch, 1, "scheduler creation failed");
 	/*add task to scheduler with frequency_check as an interval, op_func as ReviveIfNotAliveIMP,
 	op_param &client instance, clean_func = dummy cleanup func, clean_param is null*/
+	task_id = SchedulerAddTask(sch, client.frequency_check, ReviveIfNotAliveIMP,
+								&client, RevivalCleanupIMP, NULL);
 	/*handle failure*/
+	EXIT_IF_BAD(!IsMatchId(invalid_uid_g, task_id), 1, "failed to add task");
 	
 	/*run scheduler*/
+	SchedulerRun(sch);
 	
 	/*cleanup*/
 	/*destroy scheduler*/
-	
+	SchedulerDestroy(sch);
 	return 0;
 }
 /*-----------------------------------------------------------------------------*/
