@@ -1,22 +1,28 @@
 /*
 	watch dog app version 2: user input <wd_app_exe> <frequency_check> <client_app>
 */
-
+/*-----------------------------------------------------------------------------*/
+#include <signal.h>		/* kill */
+#include <unistd.h>		/* getppid, execvp */
+#include <stdlib.h>		/* atoi */
+#include <assert.h>		/* assert */
+/*-----------------------------------------------------------------------------*/
+#include "scheduler.h"
+#include "utils.h"
+/*-----------------------------------------------------------------------------*/
 typedef struct
 {
 	pid_t pid;
 	char** client_cmd;
 	int frequency_check;
 }client_ty;
-
+/*-----------------------------------------------------------------------------*/
 #define UNUSED(x)	(void)x
-
+/*-----------------------------------------------------------------------------*/
 /*forward declarations*/
-static sch_op_status_ty ReviveIfNotAliveIMP(void* param);
-static void RevivalCleanupIMP(void* unused);
-
-
-
+static sch_op_status_ty ReviveIfNotAliveIMP(void*);
+static void RevivalCleanupIMP(void*);
+/*-----------------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
 	/*asserts*/
@@ -43,7 +49,7 @@ int main(int argc, char* argv[])
 	
 	return 0;
 }
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty ReviveIfNotAliveIMP(void* param_)
 {
 	/*cast param to client_ty*/
@@ -57,10 +63,10 @@ static sch_op_status_ty ReviveIfNotAliveIMP(void* param_)
 	/*client alive */
 		/*return SCH_REPEAT*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static void RevivalCleanupIMP(void* param_)
 {
 	/*do nothing*/
 	UNUSED(param_);
 }
-
+/*-----------------------------------------------------------------------------*/
