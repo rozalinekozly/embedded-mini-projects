@@ -17,7 +17,7 @@ struct pq
     sorted_list_ty* lst;
 };
 /*---------------------------implementations ---------------------------------*/
-pq_ty* PQCreate(pq_cmp_ty cmp, void* param)
+pq_ty* PQCreate(pq_cmp_ty cmp, const void* param)
 {
     pq_ty* q = (pq_ty*)malloc(sizeof(pq_ty));
     if (NULL == q)
@@ -96,7 +96,7 @@ void* PQPeek(const pq_ty* q)
     return SortedListIterGetData(SortedListBeginIter(q->lst));
 }
 /*----------------------------------------------------------------------------*/
-void* PQRemove(pq_ty* q, pq_is_match_ty is_match, void* param)
+void* PQRemove(pq_ty* q, pq_is_match_ty is_match, const void* param)
 {
     sorted_list_iter_ty iter_to_rmv = {0};
     void* data = NULL;
