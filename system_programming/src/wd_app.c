@@ -64,16 +64,25 @@ int main(int argc, char* argv[])
 /*-----------------------------------------------------------------------------*/
 static sch_op_status_ty ReviveIfNotAliveIMP(void* param_)
 {
+	client_ty* client = {0};
+	/*assertions*/
+	assert(NULL != param);
 	/*cast param to client_ty*/
-
+	client = (client_ty*)param;
+	
 	/*send client app instance a signal via kill 0*/
 	/*if fails (client is dead)*/
+	if (-1 == kill(client->pid, 0))
+	{
 		/*execvp(client_cmd[0], client_cmd)*/
+		execvp(client->client_cmd[0], client->client_cmd);
 		/*execvp failed*/
 			/*return SCH_NOT_REPEAT*/
-
+			return SCH_NOT_REPEAT;
+	}
 	/*client alive */
 		/*return SCH_REPEAT*/
+		return SCH_REPEAT;
 }
 /*-----------------------------------------------------------------------------*/
 static void RevivalCleanupIMP(void* param_)
