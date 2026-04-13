@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 	/*declare client_ty struct*/
 	/*init it's fields*/
 		/*set frequency_check as argv[1] (convert to int)*/
-		/*set client_cmd as argv[2]*/
+		/*set client_cmd as argv + 2)*/
 		/*set clent pid as parent pid via ppid*/
 	
 	/*create a scheduler*/
