@@ -1,0 +1,3 @@
+/*
+	header file for shared library wd.so
+*/
