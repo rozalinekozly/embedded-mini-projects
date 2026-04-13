@@ -27,6 +27,7 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 	
 	/*if parent*/
 		/*version 1: sleep 2 seconds */
+		/*free wd_args*/
 	
 	/*return 0 = success*/
 }
