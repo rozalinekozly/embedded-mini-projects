@@ -16,7 +16,6 @@ help:
 		echo "$(YELLOW)     last modified: $$(date -r src/$(t).c '+%Y-%m-%d %H:%M:%S')$(RESET)";)
 	@echo "$(YELLOW)  make all   - debug build everything$(RESET)"
 	@echo "$(YELLOW)  make clear - remove all binaries$(RESET)"
-	@echo "$(YELLOW)  make git   - smart git add/commit/push$(RESET)"
 d:
 	@target="$(filter-out d, $(MAKECMDGOALS))"; \
 	[ "$${target##*.}" = "c" ] && target="$${target%.c}"; \
@@ -38,46 +37,6 @@ all:
 		$(CC) $(FLAGS_D) src/$$t.c $(INCLUDES) -lm -lpthread -o $$t; \
 	done
 	@echo "$(YELLOW)--- all targets built in debug mode ---$(RESET)"
-git:
-	@recent=$$(find . -type f -mmin -60 ! -path "./.git/*"); \
-	if [ -z "$$recent" ]; then \
-		echo "$(YELLOW)no recent files found$(RESET)"; \
-		exit 0; \
-	fi; \
-	files=""; \
-	for f in $$recent; do \
-		status=$$(git status --short "$$f" 2>/dev/null); \
-		if [ -n "$$status" ]; then \
-			files="$$files $$f"; \
-		fi; \
-	done; \
-	files=$$(echo $$files | xargs); \
-	if [ -z "$$files" ]; then \
-		echo "$(GREEN)nothing new to push — all recent files are already up to date$(RESET)"; \
-		exit 0; \
-	fi; \
-	echo "$(YELLOW)unpushed/modified files (last 60 min):$(RESET)"; \
-	i=1; \
-	for f in $$files; do \
-		echo "$$i) $$f"; \
-		eval file_$$i="$$f"; \
-		i=$$((i+1)); \
-	done; \
-	echo ""; \
-	echo "$(YELLOW)pick number (or 0 for all):$(RESET)"; \
-	read choice; \
-	if [ "$$choice" = "0" ]; then \
-		git add $$files; \
-		label="multiple files"; \
-	else \
-		eval selected=\$$file_$$choice; \
-		git add $$selected; \
-		label="$$(basename $$selected)"; \
-	fi; \
-	echo "$(YELLOW)enter commit message:$(RESET)"; \
-	read msg; \
-	git commit -m "$$label : $$msg" && git push && \
-	echo "$(GREEN)pushed successfully ^_^ good job roza <3 $(RESET)"
 clear:
 	@rm -f $(TARGETS)
 	@echo "$(YELLOW)--- binaries removed ---$(RESET)"
