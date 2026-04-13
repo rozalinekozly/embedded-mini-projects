@@ -5,6 +5,9 @@
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 void DoNotResussitate(void)
 */
+
+static pid_t g_wd_pid = 0;
+
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 {
 	/*asserts*/
@@ -16,7 +19,7 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 		/*wd_args[1] = how_often via sprintf*/
 		/*the rest entries with cmd and null at the end(execvp requires it)*/
 		
-	/*fork*/
+	/*g_w_pid = fork*/
 	/*if failed*/
 		/*return 1 (=failed)*/
 		
@@ -34,5 +37,6 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 
 void DoNotResussitate(void)
 {
-
+	/*send SIGTERM to g_wd_pid*/
+	/*wait og it to die before returning*/
 }
