@@ -38,7 +38,6 @@ int main(int argc, char* argv[])
 	/*init client's fields*/
 		/*set frequency_check as argv[1] (convert to int)*/
 		client.frequency_check = atoi(argv[1]);
-		TODO: validate return value
 		/*set client_cmd as argv + 2)*/
 		client.client_cmd = argv + 2;
 		/*set clent pid as parent pid via ppid*/
