@@ -16,6 +16,9 @@
 #include <unistd.h>		/* getppid, execvp*/
 #include <stdlib.h>		/* atoi*/
 #include <assert.h>		/* assert  */
+#include <fcntl.h>
+#include <semaphore.h>
+#include <stdio.h>		/*for printing remove later*/
 /*-----------------------------------------------------------------------------*/
 #include "utils.h"
 #include "scheduler.h"
@@ -38,12 +41,14 @@ int main(int argc, char* argv[])
 	scheduler_ty* sch = NULL;
 	uid_ty task_id = {0};
 	client_ty client = {0};
+	sem_t* sem;
 	
 	/*asserts*/
 	/*if argc < 3 */
 		/*exit*/
 	EXIT_IF_BAD(3 <= argc, 1, "Invalid arguments");
 	
+	sem = sem_open("/wd_sem", O_CREAT, 0644, 1);
 	/*init client's fields*/
 		/*set frequency_check as argv[1] (convert to int)*/
 		client.m_frequency_check = atoi(argv[1]);
@@ -64,9 +69,10 @@ int main(int argc, char* argv[])
 	/*handle failure*/
 	EXIT_IF_BAD(!IsMatchId(invalid_uid_g, task_id), 1, "failed to add task");
 	
+	sem_post(sem);
+	printf("im here\n");
 	/*run scheduler*/
 	SchedulerRun(sch);
-	
 	/*cleanup*/
 	/*destroy scheduler*/
 	SchedulerDestroy(sch);
