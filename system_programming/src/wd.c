@@ -44,7 +44,7 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 			return FAIL;
 		}
 	/*if child*/
-	if(0 == g_w_pid)
+	if(0 == g_wd_pid)
 	{
 		/*replace code with wd_app with proper arguments via execvp*/
 		execvp(wd_args[0], wd_args);
