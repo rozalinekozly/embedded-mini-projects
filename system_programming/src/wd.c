@@ -85,8 +85,12 @@ static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, char
     /*set wd_args[cmd_len + 2] = NULL (for execvp)*/
     wd_args[cmd_len + 2] = NULL;
 }
+
 void DoNotResussitate(void)
 {
-	/*send SIGTERM to g_wd_pid*/
-	/*wait og it to die before returning*/
+    /*send SIGTERM to g_wd_pid*/
+    kill(g_wd_pid, SIGTERM);
+    
+    /*wait for it to die before returning*/
+    waitpid(g_wd_pid, NULL, 0);
 }
