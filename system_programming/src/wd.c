@@ -1,6 +1,4 @@
 /* shared library of watchdog that contains 
-	1- MakeMeImmortal 
-	2- DoNotResussitate
 	implementation
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 void DoNotResussitate(void)
@@ -10,7 +8,11 @@ static pid_t g_wd_pid = 0;
 
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 {
+	char** wd_args = NULL; 
+	
 	/*asserts*/
+	assert(how_often > 0);
+	assert(NULL != cmd);
 	
 	/*build a wd_args strings array (char**) of size cmd_len+3*/
 	/*handle failure*/
