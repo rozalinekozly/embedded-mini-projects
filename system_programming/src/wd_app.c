@@ -4,7 +4,6 @@
 /*TODO:
 
 
-- add atoi check (atoi > 0 since it's not a vaild value for us)
 - change scheduler to support for users to pass an empty function for cleanup(does nothing).
 - give perameters more meaningful names
 - add check if scheduler runningfailed SCH_FAIL
@@ -60,7 +59,7 @@ int main(int argc, char* argv[])
 	EXIT_IF_BAD(NULL != sch, 1, "scheduler creation failed");
 	/*add task to scheduler with frequency_check as an interval, op_func as ReviveIfNotAliveTSK,
 	op_param &client instance, clean_func = dummy cleanup func, clean_param is null*/
-	task_id = SchedulerAddTask(sch, client.frequency_check, ReviveIfNotAliveTSK,
+	task_id = SchedulerAddTask(sch, client.m_frequency_check, ReviveIfNotAliveTSK,
 								&client, RevivalCleanupIMP, NULL);
 	/*handle failure*/
 	EXIT_IF_BAD(!IsMatchId(invalid_uid_g, task_id), 1, "failed to add task");
@@ -84,7 +83,7 @@ static sch_op_status_ty ReviveIfNotAliveTSK(void* param_)
 	
 	/*send client app instance a signal via kill 0*/
 	/*if fails (client is dead)*/
-	if (-1 == kill(client->pid, 0))
+	if (-1 == kill(client->m_pid, 0))
 	{
 		/*execvp(client_cmd[0], client_cmd)*/
 		execvp(client->m_client_cmd[0], client->m_client_cmd);
