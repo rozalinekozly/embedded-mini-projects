@@ -16,7 +16,7 @@ enum
 /*-----------------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-	 int i = 0;
+	 size_t i = 0;
 	 int status = 0;
 	 pid_t pid = getpid();
 	/*call MakeMeImmortal*/
