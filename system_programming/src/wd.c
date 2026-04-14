@@ -3,8 +3,13 @@
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 void DoNotResussitate(void)
 */
-
+enum
+{
+	MAX_DIGITS = 20
+};
 static pid_t g_wd_pid = 0;
+
+static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, int how_often);
 
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 {
@@ -21,11 +26,11 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 	{
 		return FAIL;
 	}
+	
 	/*set wd_args enteries */
-		/*set wd_args[0] ="./wd_app"*/
-		/*wd_args[1] = how_often via sprintf*/
-		/*the rest entries with cmd and null at the end(execvp requires it)*/
-		
+		/*call FillWdArgsIMP*/
+	FillWdArgsIMP(wd_args, cmd, cmd_len, how_often);
+	
 	/*g_w_pid = fork*/
 	/*if failed*/
 		/*return 1 (=failed)*/
@@ -42,6 +47,29 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 	/*return 0 = success*/
 }
 
+static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, int how_often)
+{
+	size_t i = 0;
+    char how_often_str[MAX_DIGITS] = {0};
+    
+    /*convert how_often to str*/
+    sprintf(how_often_ste, "%d", how_often);
+    
+    /*set wd_args[0] = "./wd_app"*/
+    wd_args[0] = "./wd_app";
+    
+    /*wd_args[1] = how_oftenl_str*/
+    wd_args[1] = how_often_str;
+    
+    /* copy cmd into wd_args[2...]*/
+    for (i = 0; i < cmd_len; i++)
+    {
+        wd_args[i + 2] = (char*)cmd[i];
+    }
+    
+    /*set wd_args[cmd_len + 2] = NULL (for execvp)*/
+    wd_args[cmd_len + 2] = NULL;
+}
 void DoNotResussitate(void)
 {
 	/*send SIGTERM to g_wd_pid*/
