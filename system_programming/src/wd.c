@@ -9,12 +9,14 @@ enum
 };
 static pid_t g_wd_pid = 0;
 
-static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, int how_often);
+static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, char* how_often_str);
 
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 {
 	char** wd_args = NULL; 
-	
+	char how_often_str[MAX_DIGITS] = {0};
+    
+
 	/*asserts*/
 	assert(how_often > 0);
 	assert(NULL != cmd);
@@ -27,33 +29,46 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 		return FAIL;
 	}
 	
+	/*convert how_often to str*/
+    sprintf(how_often_str, "%d", how_often);
 	/*set wd_args enteries */
 		/*call FillWdArgsIMP*/
-	FillWdArgsIMP(wd_args, cmd, cmd_len, how_often);
+	FillWdArgsIMP(wd_args, cmd, cmd_len, how_often_str);
 	
 	/*g_w_pid = fork*/
+	g_wd_pid = fork();
 	/*if failed*/
-		/*return 1 (=failed)*/
-		
+	if(-1 == g_wd_pid)
+		{
+			/*return 1 (=failed)*/
+			return FAIL;
+		}
 	/*if child*/
+	if(0 == g_w_pid)
+	{
 		/*replace code with wd_app with proper arguments via execvp*/
+		execvp(wd_args[0], wd_args);
 		/*if execvp failed*/
 			/*exit*/
-	
+		exit(1);
+	}
 	/*if parent*/
+	else
+	{
 		/*version 1: sleep 2 seconds */
+		sleep(2);
 		/*free wd_args*/
+		free(wd_args);
+	}
 	
 	/*return 0 = success*/
+	return SUCCESS;
 }
 
-static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, int how_often)
+static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, char* how_often_str)
 {
 	size_t i = 0;
-    char how_often_str[MAX_DIGITS] = {0};
-    
-    /*convert how_often to str*/
-    sprintf(how_often_ste, "%d", how_often);
+
     
     /*set wd_args[0] = "./wd_app"*/
     wd_args[0] = "./wd_app";
