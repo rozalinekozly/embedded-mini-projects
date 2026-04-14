@@ -15,7 +15,12 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 	assert(NULL != cmd);
 	
 	/*build a wd_args strings array (char**) of size cmd_len+3*/
+	wd_args = (char**)malloc((cmd_len+3)*sizeof(char*));
 	/*handle failure*/
+	if(NULL == wd_args)
+	{
+		return FAIL;
+	}
 	/*set wd_args enteries */
 		/*set wd_args[0] ="./wd_app"*/
 		/*wd_args[1] = how_often via sprintf*/
