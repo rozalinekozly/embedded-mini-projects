@@ -32,7 +32,7 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 {
 	char** wd_args = NULL; 
 	char how_often_str[MAX_DIGITS] = {0};
-	sem_t* sem = sem_open("/wd_sem", O_CREAT, 0644, 1);
+	sem_t* sem = sem_open("/wd_sem", O_CREAT, 0644, 0);
 	struct timespec ts;
 	
 	/*asserts*/
@@ -121,4 +121,7 @@ void DoNotResussitate(void)
     
     /*wait for it to die before returning*/
     waitpid(g_wd_pid, NULL, 0);
+    /*remove semaphore from os*/
+    sem_unlink("wd_sem");
 }
+

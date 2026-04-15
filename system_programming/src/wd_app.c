@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 		/*exit*/
 	EXIT_IF_BAD(3 <= argc, 1, "Invalid arguments");
 	
-	sem = sem_open("/wd_sem", O_CREAT, 0644, 1);
+	sem = sem_open("/wd_sem", O_CREAT, 0644, 0);
 	/*init client's fields*/
 		/*set frequency_check as argv[1] (convert to int)*/
 		client.m_frequency_check = atoi(argv[1]);
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 	EXIT_IF_BAD(!IsMatchId(invalid_uid_g, task_id), 1, "failed to add task");
 	
 	sem_post(sem);
-	printf("im here\n");
+	sem_close(sem);
 	/*run scheduler*/
 	SchedulerRun(sch);
 	/*cleanup*/
@@ -108,3 +108,4 @@ static void RevivalCleanupIMP(void* param_)
 	UNUSED(param_);
 }
 /*-----------------------------------------------------------------------------*/
+
