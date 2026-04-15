@@ -22,7 +22,6 @@ static pid_t g_wd_pid = 0;
 enum
 {
 	MAX_DIGITS = 20,
-	CHILD_ACTIONS = 4
 };
 
 /*-----------------------------------------------------------------------------*/
@@ -64,10 +63,13 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 	g_wd_pid = fork();
 	/*if failed*/
 	if(-1 == g_wd_pid)
-		{
-			/*return 1 (=failed)*/
-			return FAIL;
-		}
+	{
+		/*cleanup*/
+		free(wd_args);
+		sem_close(sem);
+		/*return 1 (=failed)*/
+		return FAIL;
+	}
 	/*if child*/
 	if(0 == g_wd_pid)
 	{
@@ -83,9 +85,15 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 		/*version 1: sleep 2 seconds */
 		/*sleep(2);*/
 		/*version 2: */
-		/*sem_wait(sem);*/
-		
-		sem_timedwait(sem, &ts);
+		/*wait semaphore (timed)*/
+		if(-1 == sem_timedwait(sem, &ts))
+		{
+			/*cleanup*/
+			free(wd_args);
+			sem_close(sem);
+			/*return FAIL*/
+			return FAIL;
+		}
 		/*free wd_args*/
 		free(wd_args);
 		sem_close(sem);
@@ -122,6 +130,6 @@ void DoNotResussitate(void)
     /*wait for it to die before returning*/
     waitpid(g_wd_pid, NULL, 0);
     /*remove semaphore from os*/
-    sem_unlink("wd_sem");
+    sem_unlink("/wd_sem");
 }
 
