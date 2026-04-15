@@ -38,10 +38,10 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 	assert(how_often > 0);
 	assert(NULL != cmd);
 	
-	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) 
+	if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) 
 	{
 		perror("clock_gettime");
-		return -1;
+		return FAIL;
 	}
 	ts.tv_sec += 5; 
 	
