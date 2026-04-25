@@ -15,8 +15,8 @@ enum
 	return values: 0 = success
 				   1 = failed
 */
-int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often);
+int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt);
 
-void DoNotResussitate(void);
+void DoNotResuscitate(void);
 
 #endif
