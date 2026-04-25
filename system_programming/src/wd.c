@@ -73,30 +73,12 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 	/*if child*/
 	if(0 == g_wd_pid)
 	{
-		/*replace code with wd_app with proper arguments via execvp*/
-		execvp(wd_args[0], wd_args);
-		/*if execvp failed*/
-			/*exit*/
-		exit(1);
+
 	}
 	/*if parent*/
 	else
 	{
-		/*version 1: sleep 2 seconds */
-		/*sleep(2);*/
-		/*version 2: */
-		/*wait semaphore (timed)*/
-		if(-1 == sem_timedwait(sem, &ts))
-		{
-			/*cleanup*/
-			free(wd_args);
-			sem_close(sem);
-			/*return FAIL*/
-			return FAIL;
-		}
-		/*free wd_args*/
-		free(wd_args);
-		sem_close(sem);
+
 	}
 	
 	/*return 0 = success*/
@@ -105,31 +87,10 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often)
 /*-----------------------------------------------------------------------------*/
 static void FillWdArgsIMP(char** wd_args, const char** cmd, size_t cmd_len, char* how_often_str)
 {
-	size_t i = 0;
-    /*set wd_args[0] = "./wd_app"*/
-    wd_args[0] = "./wd_app";
-    
-    /*wd_args[1] = how_oftenl_str*/
-    wd_args[1] = how_often_str;
-    
-    /* copy cmd into wd_args[2...]*/
-    for (i = 0; i < cmd_len; i++)
-    {
-        wd_args[i + 2] = (char*)cmd[i];
-    }
-    
-    /*set wd_args[cmd_len + 2] = NULL (for execvp)*/
-    wd_args[cmd_len + 2] = NULL;
-}
+
 /*-----------------------------------------------------------------------------*/
 void DoNotResussitate(void)
 {
-    /*send SIGTERM to g_wd_pid*/
-    kill(g_wd_pid, SIGTERM);
-    
-    /*wait for it to die before returning*/
-    waitpid(g_wd_pid, NULL, 0);
-    /*remove semaphore from os*/
-    sem_unlink("/wd_sem");
+
 }
 

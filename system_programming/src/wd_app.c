@@ -1,9 +1,11 @@
 /*
-	watch dog app version 2: user input <wd_app_exe> <frequency_check> <client_app>
+	watch dog app: user input <wd_app_exe> <frequency_check> <client_app>
+	This process is spawned by wd_thrd (a thread inside the client process).
+    Its job is to monitor the client process and revive it if it dies.
+    In return, wd_thrd monitors this process and revives it if it dies.
+    This creates a mutual protection system ie each side watches the other.
 */
 /*TODO:
-
-
 - change scheduler to support for users to pass an empty function for cleanup(does nothing).
 - give perameters more meaningful names
 - add check if scheduler runningfailed SCH_FAIL
@@ -29,83 +31,5 @@ typedef struct
 	char** m_client_cmd;
 	int m_frequency_check;
 }client_ty;
-/*-----------------------------------------------------------------------------*/
-#define UNUSED(x)	(void)x
-/*-----------------------------------------------------------------------------*/
-/*forward declarations*/
-static sch_op_status_ty ReviveIfNotAliveTSK(void*);
-static void RevivalCleanupIMP(void*);
-/*-----------------------------------------------------------------------------*/
-int main(int argc, char* argv[])
-{
-	scheduler_ty* sch = NULL;
-	uid_ty task_id = {0};
-	client_ty client = {0};
-	sem_t* sem;
-	
-	/*asserts*/
-	/*if argc < 3 */
-		/*exit*/
-	EXIT_IF_BAD(3 <= argc, 1, "Invalid arguments");
-	
-	sem = sem_open("/wd_sem", O_CREAT, 0644, 0);
-	/*init client's fields*/
-		/*set frequency_check as argv[1] (convert to int)*/
-		client.m_frequency_check = atoi(argv[1]);
-		EXIT_IF_BAD(client.m_frequency_check > 0, 1, "invaliud arguments");
-		/*set client_cmd as argv + 2)*/
-		client.m_client_cmd = argv + 2;
-		/*set clent pid as parent pid via ppid*/
-		client.m_pid = getppid();
-	
-	/*create a scheduler*/
-	sch = SchedulerCreate();
-	/*handle failure*/
-	EXIT_IF_BAD(NULL != sch, 1, "scheduler creation failed");
-	/*add task to scheduler with frequency_check as an interval, op_func as ReviveIfNotAliveTSK,
-	op_param &client instance, clean_func = dummy cleanup func, clean_param is null*/
-	task_id = SchedulerAddTask(sch, client.m_frequency_check, ReviveIfNotAliveTSK,
-								&client, RevivalCleanupIMP, NULL);
-	/*handle failure*/
-	EXIT_IF_BAD(!IsMatchId(invalid_uid_g, task_id), 1, "failed to add task");
-	
-	sem_post(sem);
-	sem_close(sem);
-	/*run scheduler*/
-	SchedulerRun(sch);
-	/*cleanup*/
-	/*destroy scheduler*/
-	SchedulerDestroy(sch);
-	return 0;
-}
-/*-----------------------------------------------------------------------------*/
-static sch_op_status_ty ReviveIfNotAliveTSK(void* param_)
-{
-	client_ty* client = NULL;
-	/*assertions*/
-	assert(NULL != param_);
-	/*cast param to client_ty*/
-	client = (client_ty*)param_;
-	
-	/*send client app instance a signal via kill 0*/
-	/*if fails (client is dead)*/
-	if (-1 == kill(client->m_pid, 0))
-	{
-		/*execvp(client_cmd[0], client_cmd)*/
-		execvp(client->m_client_cmd[0], client->m_client_cmd);
-		/*execvp failed*/
-			/*return SCH_NOT_REPEAT*/
-			return SCH_NOT_REPEAT;
-	}
-	/*client alive */
-		/*return SCH_REPEAT*/
-		return SCH_REPEAT;
-}
-/*-----------------------------------------------------------------------------*/
-static void RevivalCleanupIMP(void* param_)
-{
-	/*do nothing*/
-	UNUSED(param_);
-}
 /*-----------------------------------------------------------------------------*/
 
