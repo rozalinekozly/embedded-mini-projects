@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	 int status = 0;
 	 pid_t pid = getpid();
 	/*call MakeMeImmortal*/
-	status = MakeMeImmortal((argc), (const char**)argv, CLIENT_HOW_OFTEN);
+	status =status = MakeMeImmortal((argc), (const char**)argv, CLIENT_HOW_OFTEN, 3);
 	/*check return value*/
 		/*if failed*/
 		/*exit*/
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 		printf("client app PID: %d\n", pid);
 		sleep(1);
 	}
-	/*call DoNotResussitate*/
-	DoNotResussitate();
+	/*call DoNotResuscitate*/
+	DoNotResuscitate();
 	return 0;
 }
