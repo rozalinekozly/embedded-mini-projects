@@ -44,7 +44,6 @@ typedef struct
     unsigned int m_fail_cnt;
     unsigned int m_frequency_check;
     mode_ty m_current_mode;
-    sem_t* m_sem;
     pid_t m_partner_pid;
 } wd_management_ty;
 
@@ -71,7 +70,7 @@ static void RegisterSignalHandlersIMP(void);
 static void ResetCounterSigHandler(int sig);
 static void SetExitFlagSigHandler(int sig);
 /*tasks*/
-static sch_op_status_ty RaiseSemaphoreTSK(void* info);
+
 static sch_op_status_ty SendHeartbeatTSK(void* info);
 static sch_op_status_ty IncrementCounterTSK(void* info);
 static sch_op_status_ty CheckCounterTSK(void* info);
@@ -108,7 +107,8 @@ int main(int argc, char* argv[])
     wd_management.m_partner_pid = getppid();
     wd_management.m_fail_cnt =  argv + FAIL_CNT_IDX;
 
-    /*RegisterSignalHandlersIMP*/
+    /*register signals to their handlers */
+    RegisterSignals();
     /*SchedulerCreate*/
     /*if failed exit*/
     /*set m_sch*/
@@ -127,23 +127,6 @@ static void SwitchModeIMP(wd_management_ty* info, mode_ty new_mode)
     /*call transition_table[new_mode](info)*/
 }
 
-static sch_op_status_ty RaiseSemaphoreTSK(void* info_)
-{
-    /*cast param*/
-    /*assert param*/
-    /*sem_open WD_SEM_NAME*/
-    /*if failed*/
-        /*SwitchModeIMP MODE_ERROR*/
-        /*return SCH_NOT_REPEAT*/
-    /*sem_post*/
-    /*if failed*/
-        /*sem_close*/
-        /*SwitchModeIMP MODE_ERROR*/
-        /*return SCH_NOT_REPEAT*/
-    /*sem_close*/
-    /*SwitchModeIMP MODE_ROUTINE*/
-    /*return SCH_NOT_REPEAT*/
-}
 
 static sch_op_status_ty SendHeartbeatTSK(void* info_)
 {
