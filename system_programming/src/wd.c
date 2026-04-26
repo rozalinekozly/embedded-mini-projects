@@ -1,4 +1,7 @@
 
+/*-----------------------------------------------------------------------------*/
+static volatile unsigned int g_missed_signals_cnt = 0;
+static volatile int g_should_exit = 0;
 
 /*-----------------------------------------------------------------------------*/
 enum
@@ -22,9 +25,11 @@ typedef enum
 typedef struct
 {
 	char** m_client_argv; /*in order to send it to to child*/
-	sem_t* has_wd_launched;
-	pid_t partner;
-	
+	sem_t* m_has_wd_launched;
+	pid_t m_partner_pid;
+	scheduler_ty* m_sch;
+	int m_fail_cnt;
+	int m_frequency_check;
 }wd_guard_management_ty;
 /*-----------------------------------------------------------------------------*/
 /*method to switch between modes*/
@@ -51,8 +56,7 @@ static void* WdThrdIMP(void* thrd_args_ty);
 /*-----------------------------------------------------------------------------*/
 /*----tasks----*/
 /*init tasks*/
-static sch_op_status_ty LaunchedSuccessfullyTSK(void* info);
-static sch_op_status_ty RegisterSignalHandlersTSK(void* info);
+static sch_op_status_ty SetSignalHandlersTSK(void* info);
 static sch_op_status_ty SpawnWdAppTSK(void* info);
 /*routine tasks*/
 static sch_op_status_ty SendHeartbesatTSK(void* info);
@@ -99,7 +103,6 @@ static void* WdThrdIMP(void* thrd_args_ty)
 	/*asserts*/
 	
 	/*set signals handlers*/
-	/*set wd thread's management struct*/
 	
 	/*create scheduler */
     /*handle failure*/
@@ -114,26 +117,12 @@ static void* WdThrdIMP(void* thrd_args_ty)
     /*return 0*/
 }
 /*-----------------TASKS IMPLEMENTATIONS--------------------------------------*/
-static sch_op_status_ty LaunchedSuccessfullyTSK(void* info)
-{
-	/*check a global flag (?) or structs field? */
-	/*if flag is raised*/
-		/*set thread's mode to be ROUTINE*/
-		/*return SCH_NOT_REPEAT*/
-	/*return SCH_REPEATE*/
-	
-}
-/*-----------------------------------------------------------------------------*/
-static sch_op_status_ty RegisterSignalHandlersTSK(void* info)
-{
-	/*asserts*/
-    /*sigaction SIGUSR1 to be handled via ResetCounterSH*/
-    /*sigaction SIGUSR2 to be handled via SetExitFlagSH*/
-}
+
 /*-----------------------------------------------------------------------------*/
 static sch_op_status_ty SpawnWdAppTSK(void* info)
 {
 	/*asserts*/
+	/*block signals*/
 	/*fork a process*/
 		/*if failed*/
 			/*set thread's mode to ERROR*/
@@ -143,9 +132,16 @@ static sch_op_status_ty SpawnWdAppTSK(void* info)
 			/*exec wd_app store it's status*/
 			/*exit (exec did not worked)*/
 		/*otherwise (parent the wd thread)*/
-			/*wait till u recive a heartbeat from child (timed)*/
-			/*raise semaphore that he's alive*/
+			/*wait till u recive a signal from child (timed)*/
+			
 		/*return SCH_NOT_REPEAT*/
+}
+/*-----------------------------------------------------------------------------*/
+static sch_op_status_ty SetSignalHandlersTSK(void* info)
+{
+	/*asserts*/
+    /*sigaction SIGUSR1 to be handled via ResetCounterSH*/
+    /*sigaction SIGUSR2 to be handled via SetExitFlagSH*/
 }
 /*-----------------------------------------------------------------------------*/
 static sch_op_status_ty SendHeartbesatTSK(void* info)
@@ -196,9 +192,8 @@ static sch_op_status_ty ReviveTSK(void* info)
 {
     /*cast param*/
     /*assert param*/
-	/*execvp client_argv*/
-	/*handle failure*/
-	/*return not repeat (supposed to not get here)*/
+	/*set system's mode to be INIT_TASKS*/
+	/*return not repeat */
 }
 /*-----------------------------------------------------------------------------*/
 static sch_op_status_ty ExitTSK(void* info)
@@ -219,12 +214,11 @@ static sch_op_status_ty ErrorTSK(void* info)
 /*---------------------------SETTERS -----------------------------------------*/
 static void LoadInitTasksIMP(wd_guard_management_ty* info)
 {
-	/*add task LaunchedSuccessfullyTSK*/
-	/*add task RegisterSignalHandlersTSK*/
 	/*add SpawnWdAppTSK*/
+	/*add task SetSignalHandlersTSK*/
 }
 /*-----------------------------------------------------------------------------*/
-static void LoadRoutineTasksIMP(wd_management_ty* info)
+static void LoadRoutineTasksIMP(wd_guard_management_ty* info)
 {
     /*add task SendHeartbeatTSK*/
     /*add task IncrementCounterTSK*/
@@ -232,20 +226,22 @@ static void LoadRoutineTasksIMP(wd_management_ty* info)
     /*add task CheckExitFlagTSK*/
 }
 /*-----------------------------------------------------------------------------*/
-static void LoadReviveTasksIMP(wd_management_ty* info)
+static void LoadReviveTasksIMP(wd_guard_management_ty* info)
 {
     /*add task ReviveTSK*/
 }
 /*-----------------------------------------------------------------------------*/
-static void LoadErrorTasksIMP(wd_management_ty* info)
+static void LoadErrorTasksIMP(wd_guard_management_ty* info)
 {
     /*add task ErrorTSK*/
 }
 /*-----------------------------------------------------------------------------*/
-static void LoadExitTasksIMP(wd_management_ty* info)
+static void LoadExitTasksIMP(wd_guard_management_ty* info)
 {
 	/*add task ExitTSK*/
 }
+/*-----------------------------------------------------------------------------*/
+
 /*-----------------------------------------------------------------------------*/
 /*DUMMY FUNCTION*/
 /*-----------------------------------------------------------------------------*/
