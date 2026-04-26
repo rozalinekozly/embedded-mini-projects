@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
     /*switch mode to ROUTINE_TASKS*/
     
     /*SchedulerRun*/
-	/*handle failure */
+	/*handle return value */
 	
-	/*we got here if client asked to stop wd app*/
+	/*we got here if client asked to stop wd app/ scheduler is empty*/
     /*switch mode to EXIT_TASKS*/
 
     /*return 0*/
@@ -187,7 +187,7 @@ static sch_op_status_ty StopSchedulerTSK(void* info_)
 {
     /*cast param*/
     /*assert param*/
-    /*SchedulerStop*/
+    /*call SchedulerStop*/
     /*return SCH_NOT_REPEAT*/
 }
 /*-----------------------------------------------------------------------------*/
