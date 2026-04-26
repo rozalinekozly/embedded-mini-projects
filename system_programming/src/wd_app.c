@@ -64,6 +64,8 @@ static sch_op_status_ty CheckExitFlagTSK(void* info);
 static sch_op_status_ty ReviveTSK(void* info);
 /*exit task*/
 static sch_op_status_ty ExitTSK(void* info);
+/*error task*/
+static sch_op_status_ty ErrorTSK(void* info);
 /*-----------------------------------------------------------------------------*/
 /*method to set signal handlers*/
 static void RegisterSignalHandlersIMP(void);
@@ -121,7 +123,7 @@ static void SwitchModeIMP(wd_management_ty* info_, tasks_type_ty new_mode_)
     /*assign current mode to be new mode*/
     /*call transition_table to load relevant tasks */
 }
-/*-----------------------------------------------------------------------------*/
+/*-------------------------TASKS IMPLEMENTATONS -------------------------------*/
 static sch_op_status_ty SendHeartbeatTSK(void* info_)
 {
     /*cast param*/
@@ -183,14 +185,25 @@ static sch_op_status_ty ExitTSK(void* info_)
     /*return SCH_NOT_REPEAT*/
 }
 /*-----------------------------------------------------------------------------*/
-static sch_op_status_ty StopSchedulerTSK(void* info_)
+static sch_op_status_ty ErrorTSK(void* info)
 {
-    /*cast param*/
-    /*assert param*/
-    /*call SchedulerStop*/
-    /*return SCH_NOT_REPEAT*/
+	/*cast param*/
+	/*assert param*/
+	/*stop scheduler*/
+	/*return SCH_NOT_REPEAT*/
+}
+/*------------------- SIGNAL HANDLERS ----------------------------------------*/
+static void ResetCounterSH(int sig)
+{
+    /*atomic store g_missed_signals_cnt = 0*/
 }
 /*-----------------------------------------------------------------------------*/
+static void SetExitFlagSH(int sig)
+{
+    /*atomic store g_should_exit = 1*/
+}
+/*--------------------------AUX FUNCTIONS - -----------------------------------*/
+/*---------------------------LOADERS-------------------------------------------*/
 static void LoadRoutineTasksIMP(wd_management_ty* info)
 {
     /*add task SendHeartbeatTSK*/
@@ -206,22 +219,12 @@ static void LoadReviveTasksIMP(wd_management_ty* info)
 /*-----------------------------------------------------------------------------*/
 static void LoadErrorTasksIMP(wd_management_ty* info)
 {
-    /*add task ExitTSK*/
+    /*add task ErrorTSK*/
 }
 /*-----------------------------------------------------------------------------*/
 static void LoadExitTasksIMP(wd_management_ty* info)
 {
-    /*add task StopSchedulerTSK*/
-}
-/*-----------------------------------------------------------------------------*/
-static void ResetCounterSH(int sig)
-{
-    /*atomic store g_missed_signals_cnt = 0*/
-}
-/*-----------------------------------------------------------------------------*/
-static void SetExitFlagSH(int sig)
-{
-    /*atomic store g_should_exit = 1*/
+    /*add task ExitTSK*/
 }
 /*-----------------------------------------------------------------------------*/
 static void RegisterSignalHandlersIMP(void)
