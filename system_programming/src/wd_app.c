@@ -12,7 +12,6 @@
 #include "utils.h"
 #include "scheduler.h"
 
-#define WD_SEM_NAME "/wd_sem"
 #define UNUSED(x) (void)x
 
 static pid_t g_client_pid = 0;
@@ -32,8 +31,7 @@ enum
     INTERVAL_IDX = 1,
     FAIL_CNT_IDX = 2,
     CLIENT_ARGS_IDX = 3,
-    MIN_ARGS = 4,
-    SEM_TIMEOUT_SEC = 5
+    MIN_ARGS = 4
 };
 
 /* management struct for a wd instance */
