@@ -21,8 +21,7 @@ enum
 /*-----------------------------------------------------------------------------*/
 typedef enum
 {
-    INIT_TASKS = 0,
-    ROUTINE_TASKS,
+    ROUTINE_TASKS = 0,
     REVIVE_TASKS,
     ERROR_TASKS,
     EXIT_TASKS,
@@ -34,7 +33,7 @@ typedef struct
 {
     char** m_client_argv;
     scheduler_ty* m_sch;
-    unsigned int m_fail_cnt;
+    unsigned int m_max_fail_cnt;
     unsigned int m_frequency_check;
     tasks_type_ty m_current_mode;
     pid_t m_partner_pid;
@@ -86,71 +85,67 @@ static load_tasks_func_ty transition_table[NUM_TASKS] =
 /*-----------------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-	scheduler_ty* sch = NULL;
-	uid_ty task_id = {0};
-	wd_management_ty info = {0};
-
+	/*declare on scheduler instance*/
+	/*declare on wd management struct instance*/
+	
+	/*asserts*/
     /*validate argc*/
-    EXIT_IF_BAD(3 <= argc, 1, "Invalid arguments");
     
     /*set wd management instance fields */
-    info.m_frequency_check = atoi(argv[1]);
-    EXIT_IF_BAD(info.m_frequency_check > 0, 1, "invaliud arguments");
-    
-    info.m_client_cmd = argv + CLIENT_ARGS_IDX;
-    info.m_partner_pid = getppid();
-    info.m_fail_cnt =  argv + FAIL_CNT_IDX;
+    	/*set this instance's partner as it's parent (client)*/
 
     /*register signals to their handlers (not in scheduler to prevent missing sig)*/
-    RegisterSignalHandlersIMP();
-    
-    /*SchedulerCreate*/
-    sch = SchedulerCreate();
-    /*handle failure*/
-    EXIT_IF_BAD(NULL != sch, 1, "scheduler creation failed");
 
-    /*switch mode to INIT_TASKS*/
-     SwitchModeIMP(info, INIT_TASKS);
+    /*create scheduler */
+    /*handle failure*/
+
+    /*switch mode to ROUTINE_TASKS*/
+    
     /*SchedulerRun*/
-    SchedulerRun(sch);
+	/*handle failure */
+	
+	/*we got here if client asked to stop wd app*/
     /*switch mode to EXIT_TASKS*/
-    SwitchModeIMP(info, EXIT_TASKS);
+
     /*return 0*/
     return 0;
 }
-
-static void SwitchModeIMP(wd_management_ty* info, tasks_type_ty new_mode)
+/*-----------------------------------------------------------------------------*/
+static void SwitchModeIMP(wd_management_ty* info_, tasks_type_ty new_mode_)
 {
     /*assert info*/
-    assert(info);
     /*assert new_mode < NUM_TASKS*/
-    assert(new_mode < NUM_TASKS);
-    /*SchedulerClear*/
-    /*update m_current_mode*/
-    /*call transition_table[new_mode](info)*/
+    
+    /*clear scheduler*/
+    
+    /*assign current mode to be new mode*/
+    /*call transition_table to load relevant tasks */
 }
-
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty SendHeartbeatTSK(void* info_)
 {
     /*cast param*/
     /*assert param*/
-    /*kill(g_client_pid, SIGUSR1)*/
+    
+    /*send SIGUSR1 to partner*/
     /*if failed*/
-        /*if ESRCH*/
+        /*if errno is ESRCH(The target process does not exist)*/
             /*SwitchModeIMP REVIVE_TASKS*/
             /*return SCH_NOT_REPEAT*/
-        /*SwitchModeIMP ERROR_TASKS*/
+            
+        /*otherwise*/
+        	/*SwitchModeIMP ERROR_TASKS*/
         /*return SCH_NOT_REPEAT*/
+        
     /*return SCH_REPEAT*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty IncrementCounterTSK(void* info_)
 {
     /*atomic increment g_missed_signals_cnt*/
     /*return SCH_REPEAT*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty CheckCounterTSK(void* info_)
 {
     /*cast param*/
@@ -160,7 +155,7 @@ static sch_op_status_ty CheckCounterTSK(void* info_)
         /*return SCH_NOT_REPEAT*/
     /*return SCH_REPEAT*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty CheckExitFlagTSK(void* info_)
 {
     /*cast param*/
@@ -170,33 +165,24 @@ static sch_op_status_ty CheckExitFlagTSK(void* info_)
         /*return SCH_NOT_REPEAT*/
     /*return SCH_REPEAT*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty ReviveTSK(void* info_)
 {
     /*cast param*/
     /*assert param*/
-    /*waitpid g_client_pid WNOHANG*/
-    /*fork*/
-    /*if failed*/
-        /*SwitchModeIMP ERROR_TASKS*/
-        /*return SCH_NOT_REPEAT*/
-    /*if child*/
-        /*execvp client_argv*/
-        /*exit 1*/
-    /*update g_client_pid = pid*/
-    /*reset g_missed_signals_cnt = 0 atomically*/
-    /*SwitchModeIMP ROUTINE_TASKS*/
-    /*return SCH_NOT_REPEAT*/
+	/*execvp client_argv*/
+	/*handle failure*/
+	/*return not repeat (supposed to not get here)*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty ExitTSK(void* info_)
 {
     /*cast param*/
     /*assert param*/
-    /*SchedulerStop*/
+    /*stop scheduler*/
     /*return SCH_NOT_REPEAT*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static sch_op_status_ty StopSchedulerTSK(void* info_)
 {
     /*cast param*/
@@ -204,60 +190,46 @@ static sch_op_status_ty StopSchedulerTSK(void* info_)
     /*SchedulerStop*/
     /*return SCH_NOT_REPEAT*/
 }
-
-static void LoadInitTasksIMP(wd_management_ty* info)
-{
-    /*AddTaskIMP RaiseSemaphoreTSK*/
-}
-
+/*-----------------------------------------------------------------------------*/
 static void LoadRoutineTasksIMP(wd_management_ty* info)
 {
-    /*AddTaskIMP SendHeartbeatTSK*/
-    /*AddTaskIMP IncrementCounterTSK*/
-    /*AddTaskIMP CheckCounterTSK*/
-    /*AddTaskIMP CheckExitFlagTSK*/
+    /*add task SendHeartbeatTSK*/
+    /*add task IncrementCounterTSK*/
+    /*add task CheckCounterTSK*/
+    /*add task CheckExitFlagTSK*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static void LoadReviveTasksIMP(wd_management_ty* info)
 {
-    /*AddTaskIMP ReviveTSK*/
+    /*add task ReviveTSK*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static void LoadErrorTasksIMP(wd_management_ty* info)
 {
-    /*AddTaskIMP ExitTSK*/
+    /*add task ExitTSK*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static void LoadExitTasksIMP(wd_management_ty* info)
 {
-    /*AddTaskIMP StopSchedulerTSK*/
+    /*add task StopSchedulerTSK*/
 }
-
-static void AddTaskIMP(wd_management_ty* info, scheduler_op_ty tsk_func)
-{
-    /*assert info*/
-    /*assert tsk_func*/
-    /*SchedulerAddTask with interval tsk_func info TaskCleanupIMP*/
-    /*if failed exit*/
-}
-
+/*-----------------------------------------------------------------------------*/
 static void ResetCounterSH(int sig)
 {
     /*atomic store g_missed_signals_cnt = 0*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static void SetExitFlagSH(int sig)
 {
     /*atomic store g_should_exit = 1*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static void RegisterSignalHandlersIMP(void)
 {
-    /*sigemptyset*/
-    /*sigaction SIGUSR1 -> ResetCounterSH*/
-    /*sigaction SIGUSR2 -> SetExitFlagSH*/
+    /*sigaction SIGUSR1 to be handled via ResetCounterSH*/
+    /*sigaction SIGUSR2 to be handled via SetExitFlagSH*/
 }
-
+/*-----------------------------------------------------------------------------*/
 static void TaskCleanupIMP(void* unused)
 {
     /*UNUSED*/
