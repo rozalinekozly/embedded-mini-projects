@@ -1,3 +1,6 @@
+TODO: set a mechansim to know that a init worked
+right (semaphore itself is not a good indicator)
+
 #define _POSIX_C_SOURCE 200112L
 #include <sys/types.h>  /*pid_t */ 
 #include <unistd.h>     /*fork, execvp*/
@@ -52,6 +55,7 @@ typedef struct
 /*-----------------------------------------------GLOBALS---------------------------------------------------------------*/
 /*thread handle to pass to DoNotResuscitate */
 static pthread_t g_wd_thrd = 0;
+
 /*flag to indicate when to exit (accessibility of signal handlers)*/
 static volatile int g_should_exit = 0;
 /*flag to indicate number of missed signals (accessibility of signal handlers)*/
@@ -75,9 +79,11 @@ static char** AllocWdArgvIMP(thrd_args_ty* args);
 static void FreeWdArgvIMP(char** wd_argv);
 /*signals setter */
 static void RegisterSignalHandlersIMP(void);
+/*helper to block wd communications from main thread*/
+static void BlockWdCommunicationsIMP(void);
 /*dummy cleanup, could be supported by scheduler.h */
 static void TaskCleanupIMP(void* unused);
-/*----------------------------------------------------------------------------------------------------------------------------*/
+/*-------------------------------------------API FUNCTIONS------------------------------------------------------------------*/
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt)
 {
     sem_t sem = {0};
@@ -91,6 +97,9 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt
     assert(0 < fail_cnt);
     assert(0 < cmd_len);
 
+    /*block wd communications from main thread, to make sure the os
+     pass them to wd thread*/
+    BlockWdCommunicationsIMP();
     /*create unnamed semaphore initialized to 0*/
     /*handle failure*/
     if (-1 == sem_init(&sem, 0, 0)) return FAIL;
