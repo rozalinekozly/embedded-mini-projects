@@ -1,19 +1,21 @@
 #define _POSIX_C_SOURCE 200112L
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <signal.h>
+#include <sys/types.h>      /*pid_t */ 
+#include <unistd.h>         /*fork, execvp*/
+#include <sys/wait.h>       /*waitpid*/
+#include <stdlib.h>         /*exit, malloc, free*/
+#include <assert.h>         /*assert*/  
+#include <signal.h>         
 #include <stdlib.h>
 #include <assert.h>
-#include <pthread.h>
+#include <pthread.h>        /*pthread_create, pthread_join, p*/ */ */
 #include <semaphore.h>
 #include <time.h>
 #include <errno.h>
-#include <stdio.h>
+#include <stdio.h>      /*sprintf */
+
 #include "utils.h"
-#include "wd.h"
 #include "scheduler.h"
-#include "uid.h"
+#include "wd.h"
 
 #define WD_PATH "./wd_app"
 #define UNUSED(x) (void)x
