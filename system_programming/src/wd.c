@@ -48,7 +48,6 @@ typedef struct
     pid_t m_wd_pid;
 } tsk_info_ty;
 
-static pid_t g_wd_pid = 0;
 static pthread_t g_wd_thrd = 0;
 static volatile int g_should_exit = 0;
 static volatile unsigned int g_missed_signals_cnt = 0;
@@ -69,7 +68,7 @@ static void TaskCleanupIMP(void* unused);
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt)
 {
     sem_t sem = {0};
-    struct timespec ts = {0};
+    struct timespec ts = {0}; /*to wait for semaphore in timed spec*/
     thrd_args_ty args = {0};
     int sem_status = 0;
 
@@ -95,11 +94,11 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt
     ts.tv_sec += SEM_TIMEOUT_SEC;
 
     /*init thread args*/
-    args.m_client_argv     = (char**)cmd;
+    args.m_client_argv = (char**)cmd;
     args.m_client_argv_len = cmd_len;
-    args.m_interval        = (unsigned int)how_often;
-    args.m_fail_cnt        = (unsigned int)fail_cnt;
-    args.m_sem             = &sem;
+    args.m_interval = how_often;
+    args.m_fail_cnt = fail_cnt;
+    args.m_sem = &sem;
 
     /*create wd_thrd*/
     /*if failed*/
@@ -119,8 +118,8 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt
     /*if timed out*/
     if (-1 == sem_status)
     {
-        /*cancel and join thread*/
-        pthread_cancel(g_wd_thrd);
+        /*set system's state to exit*/
+       __atomic_store_n(&g_should_exit, 1, __ATOMIC_SEQ_CST);
         pthread_join(g_wd_thrd, NULL);
         g_wd_thrd = 0;
         return FAIL;
@@ -142,7 +141,6 @@ void DoNotResuscitate(void)
 
     /*reset all globals*/
     g_wd_thrd = 0;
-    g_wd_pid  = 0;
     g_should_exit = 0;
     g_missed_signals_cnt = 0;
 }
@@ -189,9 +187,6 @@ static void* WdThrdIMP(void* args_)
         exit(1);
     }
 
-    /*store wd_app pid*/
-    g_wd_pid = pid;
-
     /*notify MakeMeImmortal that wd_app is spawned*/
     sem_post(args->m_sem);
 
@@ -209,7 +204,7 @@ static void* WdThrdIMP(void* args_)
     tsk_info.m_sch      = sch;
     tsk_info.m_fail_cnt = args->m_fail_cnt;
     tsk_info.m_interval = args->m_interval;
-    tsk_info.m_wd_pid   = g_wd_pid;
+    tsk_info.m_wd_pid   = pid;
 
     /*add heartbeat task*/
     SchedulerAddTask(sch, args->m_interval, SendHeartbeatTSK,    &tsk_info, TaskCleanupIMP, NULL);
