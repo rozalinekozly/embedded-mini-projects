@@ -1,3 +1,6 @@
+TODO: add comment of used function next to each header
+TODO: rename helpers that switch modes to ToMode<something>
+TODO: add seperators to make code readable
 #define _POSIX_C_SOURCE 200112L
 #include <signal.h>
 #include <unistd.h>
