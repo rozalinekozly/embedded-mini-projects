@@ -80,8 +80,10 @@ static char** AllocWdArgvIMP(thrd_args_ty* args);
 static void FreeWdArgvIMP(char** wd_argv);
 /*signals setter */
 static void RegisterSignalHandlersIMP(void);
-/*helper to block wd communications from main thread*/
+/*helper to block wd communications from main thread used in main thread*/
 static void BlockWdCommunicationsIMP(void);
+/*helper to unblock wd communications from main thread used in wd thread*/
+static void UnblockWdCommunicationsIMP(void);
 /*dummy cleanup, could be supported by scheduler.h */
 static void TaskCleanupIMP(void* unused);
 /*-------------------------------------------API FUNCTIONS------------------------------------------------------------------*/
@@ -180,6 +182,8 @@ static void* WdThrdIMP(void* args_)
 
     assert(args_);
 
+    /*unblock wd communications for this thread */
+    UnblockWdCommunicationsIMP();
     /*register signal handlers*/
     RegisterSignalHandlersIMP();
 
@@ -474,6 +478,19 @@ static void BlockWdCommunicationsIMP(void)
 
     /*block signals for current thread (main thread)*/
     EXIT_IF_BAD(0 == pthread_sigmask(SIG_BLOCK, &block_set, NULL),1 , "failed to block wd communications in main thread");
+}
+/*----------------------------------------------------------------------------------------------------------------------------*/
+static void UnblockWdCommunicationsIMP(void)
+{
+    sigset_t block_set = {0};
+
+    /*init block set*/
+    sigemptyset(&block_set);
+    EXIT_IF_BAD(0 == sigaddset(&block_set, SIGUSR1),1 , "failed to add SIGUSR1 to block set");
+    EXIT_IF_BAD(0 == sigaddset(&block_set, SIGUSR2),1 , "failed to add SIGUSR2 to block set");
+
+    /*unblock signals for current thread (wd thread)*/
+    EXIT_IF_BAD(0 == pthread_sigmask(SIG_UNBLOCK, &block_set, NULL),1 , "failed to unblock wd communications in wd thread");
 }
 /*----------------------------------------------------------------------------------------------------------------------------*/
 
