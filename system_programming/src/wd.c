@@ -1,6 +1,7 @@
 TODO: set a mechansim to know that a init worked
 right (semaphore itself is not a good indicator)
-
+TODO: check return values and errno of sys calls 
+/*---------------------------------------------------------------------------------------------------------------------------- */
 #define _POSIX_C_SOURCE 200112L
 #include <sys/types.h>  /*pid_t */ 
 #include <unistd.h>     /*fork, execvp*/
@@ -460,6 +461,19 @@ static void RegisterSignalHandlersIMP(void)
     /*set SIGUSR2 handler to set exit flag*/
     sa.sa_handler = SetExitFlagSH;
     sigaction(SIGUSR2, &sa, NULL);
+}
+/*----------------------------------------------------------------------------------------------------------------------------*/
+static void BlockWdCommunicationsIMP(void)
+{
+    sigset_t block_set = {0};
+
+    /*init block set*/
+    sigemptyset(&block_set);
+    EXIT_IF_BAD(0 == sigaddset(&block_set, SIGUSR1),1 , "failed to add SIGUSR1 to block set");
+    EXIT_IF_BAD(0 == sigaddset(&block_set, SIGUSR2),1 , "failed to add SIGUSR2 to block set");
+
+    /*block signals for current thread (main thread)*/
+    EXIT_IF_BAD(0 == pthread_sigmask(SIG_BLOCK, &block_set, NULL),1 , "failed to block wd communications in main thread");
 }
 /*----------------------------------------------------------------------------------------------------------------------------*/
 
