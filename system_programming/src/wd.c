@@ -1,44 +1,46 @@
 #define _POSIX_C_SOURCE 200112L
-#include <sys/types.h>      /*pid_t */ 
-#include <unistd.h>         /*fork, execvp*/
-#include <sys/wait.h>       /*waitpid*/
-#include <stdlib.h>         /*exit, malloc, free*/
-#include <assert.h>         /*assert*/  
-#include <signal.h>         
-#include <stdlib.h>
-#include <assert.h>
-#include <pthread.h>        /*pthread_create, pthread_join, p*/ */ */
-#include <semaphore.h>
-#include <time.h>
-#include <errno.h>
-#include <stdio.h>      /*sprintf */
-
-#include "utils.h"
-#include "scheduler.h"
-#include "wd.h"
-
+#include <sys/types.h>  /*pid_t */ 
+#include <unistd.h>     /*fork, execvp*/
+#include <sys/wait.h>   /*waitpid*/
+#include <assert.h>     /*assert*/  
+#include <signal.h>     /*SIGUSR1, SIGUSR2, SIGKILL, sigaction, struct sigaction */  
+#include <stdlib.h>     /*exit, atoi, malloc, free*/
+#include <pthread.h>    /*pthread_create, pthread_join, pthread_t*/
+#include <semaphore.h>  /*sem_t, sem_init, sem_destroy, sem_post, sem_wait, sem_timedwait*/
+#include <time.h>       /*clock_gettime, struct timespec, CLOCK_REALTIME*/
+#include <errno.h>      /*errno*/
+#include <stdio.h>      /*sprintf*/ 
+/*---------------------------------------------------------------------------------------------------------------------------- */
+#include "utils.h"      /*EXIT_IF_BAD*/
+#include "scheduler.h"  /*scheduler_ty, SchedulerCreate, SchedulerAddTask, SchedulerRun, SchedulerStop, SchedulerDestroy*/
+#include "wd.h"         /*MakeMeImmortal, DoNotResuscitate*/
+/*----------------------------------------------------------------------------------------------------------------------------*/
 #define WD_PATH "./wd_app"
 #define UNUSED(x) (void)x
-
+/*----------------------------------------------------------------------------------------------------------------------------*/
 enum
 {
+    /*to parse input*/
     WD_APP_IDX      = 0,
     INTERVAL_IDX    = 1,
     FAIL_CNT_IDX    = 2,
     CLIENT_ARGS_IDX = 3,
-    MAX_DIGITS      = 11,
+    /*constants*/
+    MAX_DIGITS      = 20,
     SEM_TIMEOUT_SEC = 5
 };
-
+/*----------------------------------------------------------------------------------------------------------------------------*/
+/*struct to encapsulate arguments to pass/initialize wd process's (child) arguments */
 typedef struct
 {
     char** m_client_argv;
-    size_t m_client_argv_len;
+    size_t m_client_argv_len;   
     unsigned int m_interval;
     unsigned int m_fail_cnt;
     sem_t* m_sem;
 } thrd_args_ty;
-
+/*----------------------------------------------------------------------------------------------------------------------------*/
+/*management struct to track wd thread information */
 typedef struct
 {
     char** m_wd_argv;
@@ -47,24 +49,35 @@ typedef struct
     unsigned int m_interval;
     pid_t m_wd_pid;
 } tsk_info_ty;
-
+/*-----------------------------------------------GLOBALS---------------------------------------------------------------*/
+/*thread handle to pass to DoNotResuscitate */
 static pthread_t g_wd_thrd = 0;
+/*flag to indicate when to exit (accessibility of signal handlers)*/
 static volatile int g_should_exit = 0;
+/*flag to indicate number of missed signals (accessibility of signal handlers)*/
 static volatile unsigned int g_missed_signals_cnt = 0;
-
-static void* WdThrdIMP(void* args);
-static char** AllocWdArgvIMP(thrd_args_ty* args);
-static void FreeWdArgvIMP(char** wd_argv);
+/*-----------------------------------FORWARD DECLARATIONS--------------------------------------------------------------*/
+/*SIGNAL HANDLERS*/
 static void ResetCounterSH(int sig);
 static void SetExitFlagSH(int sig);
-static void RegisterSignalHandlersIMP(void);
+/*THREAD FUNCTION*/
+static void* WdThrdIMP(void* args);
+/*SCHEDULER TASKS*/
 static sch_op_status_ty SendHeartbeatTSK(void* info);
 static sch_op_status_ty IncrementCounterTSK(void* info);
 static sch_op_status_ty CheckCounterTSK(void* info);
 static sch_op_status_ty CheckExitFlagTSK(void* info);
 static sch_op_status_ty ReviveWdAppTSK(void* info);
+/*HELPERS */
+/*helper to construct wd_app arguments*/
+static char** AllocWdArgvIMP(thrd_args_ty* args);
+/*helper to free wd_app arguments*/
+static void FreeWdArgvIMP(char** wd_argv);
+/*signals setter */
+static void RegisterSignalHandlersIMP(void);
+/*dummy cleanup, could be supported by scheduler.h */
 static void TaskCleanupIMP(void* unused);
-
+/*----------------------------------------------------------------------------------------------------------------------------*/
 int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt)
 {
     sem_t sem = {0};
@@ -127,6 +140,7 @@ int MakeMeImmortal(size_t cmd_len, const char** cmd, int how_often, int fail_cnt
 
     return SUCCESS;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 void DoNotResuscitate(void)
 {
@@ -144,6 +158,7 @@ void DoNotResuscitate(void)
     g_should_exit = 0;
     g_missed_signals_cnt = 0;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static void* WdThrdIMP(void* args_)
 {
@@ -224,6 +239,7 @@ static void* WdThrdIMP(void* args_)
 
     return NULL;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static sch_op_status_ty SendHeartbeatTSK(void* info_)
 {
@@ -244,6 +260,7 @@ static sch_op_status_ty SendHeartbeatTSK(void* info_)
 
     return SCH_REPEAT;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static sch_op_status_ty IncrementCounterTSK(void* info_)
 {
@@ -267,6 +284,7 @@ static sch_op_status_ty CheckCounterTSK(void* info_)
 
     return SCH_REPEAT;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static sch_op_status_ty CheckExitFlagTSK(void* info_)
 {
@@ -287,6 +305,7 @@ static sch_op_status_ty CheckExitFlagTSK(void* info_)
 
     return SCH_REPEAT;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static sch_op_status_ty ReviveWdAppTSK(void* info_)
 {
@@ -322,7 +341,6 @@ static sch_op_status_ty ReviveWdAppTSK(void* info_)
 
     /*update wd_pid in tsk_info and global*/
     info->m_wd_pid = new_pid;
-    g_wd_pid = new_pid;
 
     /*reset counter*/
     __atomic_store_n(&g_missed_signals_cnt, 0, __ATOMIC_SEQ_CST);
@@ -335,6 +353,7 @@ static sch_op_status_ty ReviveWdAppTSK(void* info_)
 
     return SCH_NOT_REPEAT;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static char** AllocWdArgvIMP(thrd_args_ty* args)
 {
@@ -387,6 +406,7 @@ static char** AllocWdArgvIMP(thrd_args_ty* args)
 
     return wd_argv;
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static void FreeWdArgvIMP(char** wd_argv)
 {
@@ -400,13 +420,14 @@ static void FreeWdArgvIMP(char** wd_argv)
     /*free argv array*/
     free(wd_argv);
 }
-
+/*----------------------------------------------------------------------------------------------------------------------------*/
 static void ResetCounterSH(int sig)
 {
     /*wd_app sent SIGUSR1 - reset missed signals counter*/
     __atomic_store_n(&g_missed_signals_cnt, 0, __ATOMIC_SEQ_CST);
     UNUSED(sig);
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static void SetExitFlagSH(int sig)
 {
@@ -414,6 +435,7 @@ static void SetExitFlagSH(int sig)
     __atomic_store_n(&g_should_exit, 1, __ATOMIC_SEQ_CST);
     UNUSED(sig);
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static void RegisterSignalHandlersIMP(void)
 {
@@ -430,6 +452,7 @@ static void RegisterSignalHandlersIMP(void)
     sa.sa_handler = SetExitFlagSH;
     sigaction(SIGUSR2, &sa, NULL);
 }
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 static void TaskCleanupIMP(void* unused)
 {
