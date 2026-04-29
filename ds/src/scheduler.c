@@ -173,7 +173,7 @@ sch_run_status_ty SchedulerRun(scheduler_ty* sch)
 		
 		/* only reschedule if interval > 0 */
 		if (SCH_REPEAT == op_status && !sch->skip_reschedule && 
-				TaskGetTimeToRun(curr_task) > time_to_run)
+				TaskGetTimeToRun(curr_task) >= time_to_run)
 		{
 			if (PQ_FAIL == PQEnqueue(sch->pq, curr_task))
 			{
@@ -215,7 +215,7 @@ void SchedulerClear(scheduler_ty* sch)
 	if (sch->is_running)
 	{
 		sch->skip_reschedule = 1;
-		sch->is_running = 0;
+		/*sch->is_running = 0;*/
 	}
 }
 /*-----------------------------------------------------------------------------*/
@@ -233,7 +233,7 @@ static int TaskCmp(const void* task1, const void* task2, void* param)
 	return (int)difftime(TaskGetTimeToRun((task_ty*)task1),  
 						TaskGetTimeToRun((task_ty*)task2));
 }
-/*-----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 static int WrapperIsMatchId( void* data1, void* data2)
 {
 	return IsMatchId(TaskGetUID((task_ty*)data1), *(uid_ty*)data2);
