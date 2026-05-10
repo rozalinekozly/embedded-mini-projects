@@ -6,8 +6,9 @@ int main() {
     delete ptr;
 
     // mixing new with free
-    int *ptr2 = new int[1000];
-    free(ptr2);
+    int *ptr2 =  new int[1000];
+    int* ptr = new
+        //free(ptr2);
 
     return 0;
 }
