@@ -1,3 +1,5 @@
+#include <cassert>      //assert
+
 #include "slist.hpp"
 
 namespace hrd42
@@ -54,15 +56,15 @@ void Slist::PushFront(int val_)
 
 size_t Slist::Size() const
 {
-    size_t counter = 0;
+    size_t ret_counter = 0;
     Node* itr = this->m_start;
 
     while(NULL !=  itr)
     {
-        ++counter;
+        ++ret_counter;
         itr = itr -> GetNext();
     }
-    return counter;
+    return ret_counter;
 } 
 
 bool Slist::IsEmpty() const
@@ -70,6 +72,16 @@ bool Slist::IsEmpty() const
     return (nullptr == this->m_start);
 }
 
+int Slist::PopFront()
+{
+    assert(!this->IsEmpty());
+
+    Node* node = this->m_start;
+    int ret = node->GetData();
+    this->m_start = node->GetNext();
+    delete node;
+    return ret;
+}
 
 
 
