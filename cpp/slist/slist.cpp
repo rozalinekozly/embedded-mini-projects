@@ -4,24 +4,22 @@
 
 namespace hrd42
 {
-//nested hidden class
+
 class Slist::Node
 {
-    public: //public to slist type
-        //special public member funcitons
-        explicit Node(int val_, Node* next_); //ctor
+    public: 
+
+        explicit Node(int val_ = 0, Node* const next_= 0); //ctor
+        //generated cctor, copy assignment operaotr, dtor
           
-        //public member funciton (methods on object)
-        //getters
-        int GetData() const;
-        Node* GetNext() const;
+        //getters 
+        int GetData() const; //UB if node is nullptr
+        Node* GetNext() const; //UB if node is nullptr
 
     private:
-        Node(const Node& other);
-        Node& operator=(const Node& other); 
         
         int m_val;
-        Node* m_next;
+        Node* m_next; 
 };
 /*---------------------------------------------------------------------------------*/
 /*Node member functions implementaiton */
