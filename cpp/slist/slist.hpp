@@ -1,5 +1,5 @@
-#ifndef __SLIST_HPP__
-#define __SLIST_HPP__
+#ifndef HRD42_SLIST_HPP
+#define HRD42_SLIST_HPP
 
 #include <cstddef> //size_t
 
@@ -17,6 +17,7 @@ class Slist
 
         //public member functions
         void PushFront(int val_); 
+        //UB if slist is empty
         int PopFront();
         size_t Size() const; 
         bool IsEmpty() const;
@@ -36,6 +37,6 @@ class Slist
 
 }// namespace hrd42
 
-#endif //__SLIST_HPP__
+#endif //HRD42_SLIST_HPP
 
 
