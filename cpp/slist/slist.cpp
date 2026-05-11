@@ -34,6 +34,35 @@ int Slist::Node::GetData() const
     return (this->m_val);
 }
 
+Slist::Node* Slist::Node::GetNext() const
+{
+    return (this->m_next);
+}
+/*---------------------------------------------------------------------------------*/
+/* slist member functions implementations */
+Slist::Slist()
+{
+    m_start = nullptr;
+}
+
+void Slist::PushFront(int val_)
+{
+    Slist::Node* node = new Node(val_, this->m_start);
+} 
+
+size_t Slist::Size() const
+{
+    size_t counter = 0;
+    Node* itr = this->m_start;
+
+    while(NULL !=  itr -> GetNext())
+    {
+        ++counter;
+        itr = itr -> GetNext();
+    }
+    return counter;
+} 
+
 
 
 
