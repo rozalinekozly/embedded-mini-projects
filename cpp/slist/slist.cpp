@@ -63,6 +63,12 @@ size_t Slist::Size() const
     return counter;
 } 
 
+bool Slist::IsEmpty() const
+{
+    return (nullptr != this->m_start);
+}
+
+
 
 
 
