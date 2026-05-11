@@ -1,42 +1,44 @@
-#ifndef HRD42_SLIST_HPP
-#define HRD42_SLIST_HPP
+/**************************** 
+Description: single-linked list class declaration, with nested node class hidden
+Developer: rozaline 
+Reviewer:
+Version: 1
+****************************/    
+#ifndef ILRD_RD42_SLIST_HPP
+#define ILRD_RD42_SLIST_HPP
 
 #include <cstddef> //size_t
 
 namespace hrd42
 {
     
-class Slist
+class Slist //uncopiable
 {
-    public: //public access modifier: accessible from anywhere 
-            //inside, outside class or other files 
+    public: 
 
         //special public member functions
         explicit Slist(); //default ctor, creates an empty list instance
         ~Slist(); //dtor
 
         //public member functions
-        void PushFront(int val_); 
-        //UB if slist is empty
-        int PopFront();
+        void PushFront(int val); 
+        int PopFront(); //UB if slist is empty
+
         size_t Size() const; 
         bool IsEmpty() const;
 
-        //instruction to the compiler not to create these special functions by default
-        Slist(const Slist& other_) = delete;
-        Slist& operator=(const Slist& other_) = delete;
+    private: 
 
-    private: //private access modifier: accessible only inside class itself 
-            //(memeber methods) + hide data from outside 
-        //private data members
-        class Node;     //restricting that class's visisbility 
-                        //exclusively to the containing class
-        Node* m_start;  //start of the slist
+        class Node;   
+        Node* m_start;  
+
+        Slist(const Slist& other);
+        Slist& operator=(const Slist& other);
 
 };
 
 }// namespace hrd42
 
-#endif //HRD42_SLIST_HPP
+#endif //ILRD_RD42_SLIST_HPP
 
 
