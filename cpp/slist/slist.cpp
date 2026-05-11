@@ -48,6 +48,8 @@ Slist::Slist()
 void Slist::PushFront(int val_)
 {
     Slist::Node* node = new Node(val_, this->m_start);
+    //updating head
+    this->m_start = node;
 } 
 
 size_t Slist::Size() const
@@ -55,7 +57,7 @@ size_t Slist::Size() const
     size_t counter = 0;
     Node* itr = this->m_start;
 
-    while(NULL !=  itr -> GetNext())
+    while(NULL !=  itr)
     {
         ++counter;
         itr = itr -> GetNext();
@@ -65,7 +67,7 @@ size_t Slist::Size() const
 
 bool Slist::IsEmpty() const
 {
-    return (nullptr != this->m_start);
+    return (nullptr == this->m_start);
 }
 
 
