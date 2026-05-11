@@ -10,8 +10,6 @@ class Slist::Node
         explicit Node(int val_, Node* next_); //ctor
           
         //public member funciton (methods on object)
-        //setters
-        void SetNext(Node* next_);
         //getters
         int GetData() const;
         Node* GetNext() const;
@@ -23,4 +21,33 @@ class Slist::Node
         int m_val;
         Node* m_next;
 };
+/*---------------------------------------------------------------------------------*/
+/*Node member functions implementaiton */
+Slist::Node::Node(int val_, Node* next_)
+{
+    this->m_val = val_;
+    this->m_next = next_;
+}
+
+int Slist::Node::GetData() const 
+{
+    return (this->m_val);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 } // namespace hrd42
