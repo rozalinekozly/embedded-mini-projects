@@ -2,7 +2,7 @@
 
 struct X
 {
-    explicit X();
+    //explicit X();
     X(int a_, int b_ = 8);
     ~X();
     X(const X& other_);
@@ -10,11 +10,11 @@ struct X
     int m_a;
     const int m_b;
 };
-
+/*
 X::X(): m_a(3), m_b(4)
 {
     std::cout << "this:" << this << " X default Ctor. m_a:" << m_a << " m_b:" << m_b << std::endl;
-}
+}*/
 
 X::X(int a_, int b_): m_a(a_), m_b(b_)
 {

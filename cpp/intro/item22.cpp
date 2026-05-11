@@ -2,7 +2,7 @@
 
 struct X
 {
-    explicit X();
+   explicit X();
     X(int a_, int b_ = 8);
     ~X();
     X(const X& other_);
@@ -62,12 +62,15 @@ int main()
     delete px; px = 0;
 
     X* xp = new X[10];
-    delete[] xp;
+    delete xp;
+
+    //double* xp = new X[10];
+    //delete xp;
 
     Y y1;
     y1.m_x.m_a = 250;
     Y y2(y1);
-    Y y3;
+   Y y3;
 
     y3 = y1;
 
