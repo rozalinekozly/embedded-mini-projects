@@ -1,5 +1,7 @@
 *
 !*.c
+!*.cpp
+!*.hpp
 !*/
 !dummy.md
 !.myfuncs
