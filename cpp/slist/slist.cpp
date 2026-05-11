@@ -83,8 +83,16 @@ int Slist::PopFront()
     return ret;
 }
 
-
-
+Slist::~Slist()
+{
+    Node* itr = this->m_start;
+    while (nullptr != itr)
+    {
+        Node* next = itr->GetNext();
+        delete itr;
+        itr = next;
+    }
+}
 
 
 
