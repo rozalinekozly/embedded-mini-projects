@@ -1,6 +1,6 @@
 /************************************************************
-Description:
-Developer:
+Description: complex numbers class
+Developer: rozaline
 Reviewer: 
 Version: 1
 ************************************************************/
@@ -59,6 +59,90 @@ private:
     friend std::istream& operator>>(std::istream& is, Complex& complex);
     friend std::ostream& operator<<(std::ostream& os, const Complex& complex);
 };
+//ctor
+inline Complex::Complex(double real, double img) : m_real(real), m_img(img){}
+
+//getters
+inline double Complex::GetReal() const
+{
+    return m_real;
+}
+
+inline double Complex::GetImg() const
+{
+    return m_img;
+}
+
+//setters
+inline void Complex::SetReal(double real)
+{
+    m_real = real;
+}
+
+inline void Complex::SetImg(double img)
+{
+    m_img = img;
+}
+
+//operators 
+inline bool Complex::operator!=(const Complex& other) const
+{
+    return !(*this == other);
+}
+
+inline bool Complex::operator==(const Complex& other) const
+{
+    return (m_real == other.m_real) && (m_img == other.m_img);
+}
+
+//no symmetric requirement operators
+inline Complex& Complex::operator+=(const Complex& other)
+{
+    m_real += other.m_real;
+    m_img += other.m_img;
+    
+    return (*this);
+}
+
+inline Complex& Complex::operator-=(const Complex& other)
+{
+    m_real -= other.m_real;
+    m_img -= other.m_img;
+    
+    return (*this);
+}
+
+inline Complex& Complex::operator*=(const Complex& other)
+{
+    double real = m_real * other.m_real - m_img * other.m_img;
+    double img = m_real * other.m_img + m_img * other.m_real;
+    
+    m_real = real;
+    m_img = img;
+    
+    return (*this);
+}
+
+inline Complex& Complex::operator/=(const Complex& other)
+{
+    double divisor = other.m_real * other.m_real + other.m_img * other.m_img;
+    double real = (m_real * other.m_real + m_img * other.m_img) / divisor;
+    double img = (m_img * other.m_real - m_real * other.m_img) / divisor;
+    
+    m_real = real;
+    m_img = img;
+    
+    return (*this);   
+}  
+
+
+
+
+inline std::ostream& operator<<(std::ostream& os, const Complex& complex)
+{
+    os << complex.m_real << " + " << complex.m_img << "i";
+    return os;
+}
 } // namespace hrd42
 
 #endif  // __ILRD_HRD42_COMPLEX_HPP__
