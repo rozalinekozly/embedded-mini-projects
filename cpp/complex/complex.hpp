@@ -135,9 +135,25 @@ inline Complex& Complex::operator/=(const Complex& other)
     return (*this);   
 }  
 
+//friend free func definitions
+//a + b
+inline const Complex operator+(const Complex& lhs, const Complex& rhs)
+{
+    Complex result(lhs);
+    result += rhs; //using the operator we defined previously
+    return result;
+}
+
+//a - b
+inline const Complex operator-(const Complex& lhs, const Complex& rhs)
+{
+    Complex result(lhs);
+    result += rhs;
+    return result;
+}
 
 
-
+//ostream and istream operators overloading
 inline std::ostream& operator<<(std::ostream& os, const Complex& complex)
 {
     os << complex.m_real << " + " << complex.m_img << "i";
