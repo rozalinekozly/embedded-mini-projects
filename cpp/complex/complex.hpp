@@ -148,15 +148,31 @@ inline const Complex operator+(const Complex& lhs, const Complex& rhs)
 inline const Complex operator-(const Complex& lhs, const Complex& rhs)
 {
     Complex result(lhs);
-    result += rhs;
+    result -= rhs;
     return result;
 }
+
+inline const Complex operator*(const Complex& lhs, const Complex& rhs)
+{
+    Complex result(lhs);
+    result *= rhs;
+    return result;
+}   
+
+inline const Complex operator/(const Complex& lhs, const Complex& rhs)
+{
+    Complex result(lhs);
+    result /= rhs;
+    return result;
+}
+
+
 
 
 //ostream and istream operators overloading
 inline std::ostream& operator<<(std::ostream& os, const Complex& complex)
 {
-    os << complex.m_real << " + " << complex.m_img << "i";
+    os << "("<<complex.m_real << " + " << complex.m_img << "i" << ")";
     return os;
 }
 } // namespace hrd42
