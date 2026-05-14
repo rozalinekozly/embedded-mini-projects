@@ -9,7 +9,7 @@ void TestSymmetricOps();
 void TestCtors();
 void TestNonSymmetricOPs();
 void TestSettersGetters();
-
+void TestInput();
 
 int main()
 {
@@ -23,6 +23,8 @@ int main()
     TestNonSymmetricOPs();
     
     TestSymmetricOps();
+
+    TestInput();
 
     return 0;
 }
@@ -110,4 +112,13 @@ void TestSymmetricOps()
     cout << "testing operator /" << endl;
     Complex c6 = c1 / c2; 
     cout << "c1 / c2 = " << c1 << " / " << c2 << " = " << c6 << endl << endl;
+}
+
+void TestInput()
+{
+    cout << "testing operator >>" << endl;
+    Complex c1;
+    cout << "enter a complex number in the format (real,img i): ";
+    cin >> c1;
+    cout << "you entered: " << c1 << endl;
 }
