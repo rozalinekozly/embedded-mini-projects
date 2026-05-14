@@ -166,14 +166,28 @@ inline const Complex operator/(const Complex& lhs, const Complex& rhs)
     return result;
 }
 
-
-
-
 //ostream and istream operators overloading
 inline std::ostream& operator<<(std::ostream& os, const Complex& complex)
 {
     os << "("<<complex.m_real << " + " << complex.m_img << "i" << ")";
     return os;
+}
+
+inline std::istream& operator>>(std::istream& is, Complex& complex)
+{
+    char open_paren = 0;
+    char comma = 0;
+    char close_paren = 0;
+
+    double real = 0;
+    double img = 0;
+
+    is >> open_paren >> real >> comma >> img >> close_paren;
+
+    complex.m_real = real;
+    complex.m_img = img;
+
+    return is;
 }
 } // namespace hrd42
 
