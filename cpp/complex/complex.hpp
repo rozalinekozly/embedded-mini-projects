@@ -1,8 +1,14 @@
 /************************************************************
 Description: complex numbers class
 Developer: rozaline
-Reviewer: 
-Version: 1
+Reviewer: shir
+Version: 1.5
+1 = initial version
+1.1 = added operators +=, -=, *=, /= , setters and gettersand test for them
+1.2 = added operator == and !=, and test for them
+1.3 = added operator +, -, *, / and test for it
+1.4 = added operator << and >> and test for it
+1.5 = removed infinte loop in operator >> and added assumption on the input format.
 ************************************************************/
 #ifndef __ILRD_HRD42_COMPLEX_HPP__
 #define __ILRD_HRD42_COMPLEX_HPP__
@@ -182,6 +188,7 @@ inline std::istream& operator>>(std::istream& is, Complex& complex)
     double real = 0;
     double img = 0;
 
+    //assuming the input format is (real,img i) and valid (ignores whitespaces)
     is >> open_paren >> real >> comma >> img >> close_paren;
 
     complex.m_real = real;
