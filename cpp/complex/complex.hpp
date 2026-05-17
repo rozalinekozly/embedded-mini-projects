@@ -81,48 +81,48 @@ inline double Complex::GetImg() const
 }
 
 //setters
-inline void Complex::SetReal(double real)
+inline void Complex::SetReal(double real_)
 {
-    m_real = real;
+    m_real = real_;
 }
 
-inline void Complex::SetImg(double img)
+inline void Complex::SetImg(double img_)
 {
-    m_img = img;
+    m_img = img_;
 }
 
 //operators 
-inline bool Complex::operator!=(const Complex& other) const
+inline bool Complex::operator!=(const Complex& other_) const
 {
-    return !(*this == other);
+    return !(*this == other_);
 }
 
-inline bool Complex::operator==(const Complex& other) const
+inline bool Complex::operator==(const Complex& other_) const
 {
-    return (m_real == other.m_real) && (m_img == other.m_img);
+    return (m_real == other_.m_real) && (m_img == other_.m_img);
 }
 
 //no symmetric requirement operators
-inline Complex& Complex::operator+=(const Complex& other)
+inline Complex& Complex::operator+=(const Complex& other_)
 {
-    m_real += other.m_real;
-    m_img += other.m_img;
+    m_real += other_.m_real;
+    m_img += other_.m_img;
     
     return (*this);
 }
 
-inline Complex& Complex::operator-=(const Complex& other)
+inline Complex& Complex::operator-=(const Complex& other_)
 {
-    m_real -= other.m_real;
-    m_img -= other.m_img;
+    m_real -= other_.m_real;
+    m_img -= other_.m_img;
     
     return (*this);
 }
 
-inline Complex& Complex::operator*=(const Complex& other)
+inline Complex& Complex::operator*=(const Complex& other_)
 {
     double real = m_real * other.m_real - m_img * other.m_img;
-    double img = m_real * other.m_img + m_img * other.m_real;
+    double img = m_real * other.m_img + m_img * other_.m_real;
     
     m_real = real;
     m_img = img;
@@ -130,11 +130,11 @@ inline Complex& Complex::operator*=(const Complex& other)
     return (*this);
 }
 
-inline Complex& Complex::operator/=(const Complex& other)
+inline Complex& Complex::operator/=(const Complex& other_)
 {
-    double divisor = other.m_real * other.m_real + other.m_img * other.m_img;
-    double real = (m_real * other.m_real + m_img * other.m_img) / divisor;
-    double img = (m_img * other.m_real - m_real * other.m_img) / divisor;
+    double divisor = other_.m_real * other_.m_real + other_.m_img * other_.m_img;
+    double real = (m_real * other_.m_real + m_img * other_.m_img) / divisor;
+    double img = (m_img * other_.m_real - m_real * other_.m_img) / divisor;
     
     m_real = real;
     m_img = img;
@@ -144,43 +144,43 @@ inline Complex& Complex::operator/=(const Complex& other)
 
 //friend free func definitions
 //a + b
-inline const Complex operator+(const Complex& lhs, const Complex& rhs)
+inline const Complex operator+(const Complex& lhs_, const Complex& rhs_)
 {
-    Complex result(lhs);
-    result += rhs; //using the operator we defined previously
+    Complex result(lhs_);
+    result += rhs_; //using the operator we defined previously
     return result;
 }
 
 //a - b
-inline const Complex operator-(const Complex& lhs, const Complex& rhs)
+inline const Complex operator-(const Complex& lhs_, const Complex& rhs_)
 {
-    Complex result(lhs);
-    result -= rhs;
+    Complex result(lhs_);
+    result -= rhs_;
     return result;
 }
 
-inline const Complex operator*(const Complex& lhs, const Complex& rhs)
+inline const Complex operator*(const Complex& lhs_, const Complex& rhs_)
 {
-    Complex result(lhs);
-    result *= rhs;
+    Complex result(lhs_);
+    result *= rhs_;
     return result;
 }   
 
-inline const Complex operator/(const Complex& lhs, const Complex& rhs)
+inline const Complex operator/(const Complex& lhs_, const Complex& rhs_)
 {
-    Complex result(lhs);
-    result /= rhs;
+    Complex result(lhs_);
+    result /= rhs_;
     return result;
 }
 
 //ostream and istream operators overloading
-inline std::ostream& operator<<(std::ostream& os, const Complex& complex)
+inline std::ostream& operator<<(std::ostream& os, const Complex& complex_)
 {
-    os << "("<<complex.m_real << " + " << complex.m_img << "i" << ")";
+    os << "("<<complex_.m_real << " + " << complex_.m_img << "i" << ")";
     return os;
 }
 
-inline std::istream& operator>>(std::istream& is, Complex& complex)
+inline std::istream& operator>>(std::istream& is_, Complex& complex_)
 {
     char placeholder = 0;
 
@@ -188,13 +188,13 @@ inline std::istream& operator>>(std::istream& is, Complex& complex)
     double img = 0;
 
     //assuming the input format is (real,img i) and valid (ignores whitespaces)
-    is >> placeholder >> real >> placeholder >> img >> placeholder;
+    is_>> placeholder >> real >> placeholder >> img >> placeholder;
 
     /* */
-    complex.m_real = real;
-    complex.m_img = img;
+    complex_.m_real = real;
+    complex_.m_img = img;
 
-    return is;
+    return is_;
 }
 } // namespace hrd42
 
