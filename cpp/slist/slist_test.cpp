@@ -1,3 +1,9 @@
+/*------------------------------------------------------------------------------
+Description: unit tests for single-linked list class
+Developer: rozaline 
+Reviewer: steve
+Version: 1
+------------------------------------------------------------------------------*/  
 #include <iostream>
 
 #include "slist.hpp"

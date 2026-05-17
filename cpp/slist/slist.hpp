@@ -1,9 +1,9 @@
-/**************************** 
+/*------------------------------------------------------------------------------
 Description: single-linked list class declaration, with nested node class hidden
 Developer: rozaline 
-Reviewer:
+Reviewer: steve
 Version: 1
-****************************/    
+------------------------------------------------------------------------------*/    
 #ifndef ILRD_RD42_SLIST_HPP
 #define ILRD_RD42_SLIST_HPP
 

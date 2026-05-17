@@ -1,3 +1,9 @@
+/*------------------------------------------------------------------------------
+Description: single-linked list class implementation, and node class implementation + declaration
+Developer: rozaline 
+Reviewer: steve
+Version: 1
+------------------------------------------------------------------------------*/  
 #include <cassert>      //assert
 
 #include "slist.hpp"
