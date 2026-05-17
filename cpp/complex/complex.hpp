@@ -121,8 +121,8 @@ inline Complex& Complex::operator-=(const Complex& other_)
 
 inline Complex& Complex::operator*=(const Complex& other_)
 {
-    double real = m_real * other.m_real - m_img * other.m_img;
-    double img = m_real * other.m_img + m_img * other_.m_real;
+    double real = m_real * other_.m_real - m_img * other_.m_img;
+    double img = m_real * other_.m_img + m_img * other_.m_real;
     
     m_real = real;
     m_img = img;
