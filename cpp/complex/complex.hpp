@@ -2,13 +2,14 @@
 Description: complex numbers class
 Developer: rozaline
 Reviewer: shir
-Version: 1.5
+Version: 1.6
 1 = initial version
 1.1 = added operators +=, -=, *=, /= , setters and gettersand test for them
 1.2 = added operator == and !=, and test for them
 1.3 = added operator +, -, *, / and test for it
 1.4 = added operator << and >> and test for it
 1.5 = removed infinte loop in operator >> and added assumption on the input format.
+1.6: used one variable as placeholder in istream overloading.
 ************************************************************/
 #ifndef __ILRD_HRD42_COMPLEX_HPP__
 #define __ILRD_HRD42_COMPLEX_HPP__
