@@ -181,16 +181,15 @@ inline std::ostream& operator<<(std::ostream& os, const Complex& complex)
 
 inline std::istream& operator>>(std::istream& is, Complex& complex)
 {
-    char open_paren = 0;
-    char comma = 0;
-    char close_paren = 0;
+    char placeholder = 0;
 
     double real = 0;
     double img = 0;
 
     //assuming the input format is (real,img i) and valid (ignores whitespaces)
-    is >> open_paren >> real >> comma >> img >> close_paren;
+    is >> placeholder >> real >> placeholder >> img >> placeholder;
 
+    /* */
     complex.m_real = real;
     complex.m_img = img;
 
