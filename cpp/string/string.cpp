@@ -18,13 +18,15 @@ more version info:
 //ctor (by default it initailize with empty string)
 String::String(const char* str)
 {
-    m_str = const_cast<char*> (str);
+    m_str = new char[strlen (str + 1)];
+    strcpy(m_str, str);
 }
 
 //dtor 
 String::~String()
 {
-    //do nothing
+    delete[] this->m_str;
+    this->m_str = nullptr;
 }
 
 //cctor
@@ -52,5 +54,11 @@ bool String::operator==(const String& other) const
 bool String::operator!=(const String& other) const
 {
     return !(this->operator==(other));
+}
+
+// --------------------------------------------------
+String& String::operator+=(const String& other_)
+{
+
 }
 };//end of namespace hrd42
