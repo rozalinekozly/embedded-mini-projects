@@ -1,0 +1,102 @@
+#include <iostream> 
+#include "string.hpp"
+
+using namespace hrd42;
+using namespace std;
+
+void TestCtor();
+void TestCctor();
+void TestCopyAssignmentOperator();
+void TestEqualAndNonEqualOperator();
+
+// helper function to compare between 2 strings, prints to terminal the results
+static void CmpToExpectedString(String test_res, String expected);
+
+int main()
+{
+    TestCtor();
+    TestCctor();
+    TestCopyAssignmentOperator();
+    TestEqualAndNonEqualOperator();
+
+    return 0;
+}
+
+void TestEqualAndNonEqualOperator()
+{
+    cout<<"Testing operators == and !="<<endl;
+    {
+        cout<<"\t diffreniate with 1 letter: ";
+        String s1 = "hello";
+        String s2 = "hella";
+        
+        if(!(s1 == s2) && (s1 != s2))
+        {
+            cout<<"Passed"<<endl;
+        }
+        else
+        {
+            cout<<"Failed"<<endl;
+        }
+        
+    }
+}
+
+void TestCtor()
+{
+    //note: later change this to array of strings and expected, and send to test in loop
+    cout << "--- Testing Ctor ---" << endl;
+    
+    cout << "\tdefault argument (empty string) test: ";
+    {
+        String x;
+        const char* expected = "";
+        CmpToExpectedString(x, expected);
+    }
+
+    cout << "\tArgument test: ";
+    {
+        String x("hello world");
+        const char* expected = "hello world"; 
+        CmpToExpectedString(x, expected);
+    }    
+}
+
+void TestCctor()
+{
+    cout<<"--- Testing cctor ---"<<endl;
+
+    cout<<"\targument defined ctor: ";
+    {
+        String s1 = "Rozaline";
+        String s2(s1);
+
+        CmpToExpectedString(s1,s2);
+    }
+}
+
+void TestCopyAssignmentOperator()
+{
+    cout<<"--- Testing copy assignment operator ---"<<endl;
+    cout<<"\t2 argumented strings : ";
+    {
+        String s1 = "Rozaline";
+        String s2 = "Kozly";
+
+        s1 = s2;
+
+        CmpToExpectedString(s1, s2);
+    }
+}
+
+static void CmpToExpectedString(String test_res, String expected)
+{
+    if(test_res.operator==(expected))
+    {
+        cout<<"Passed"<<endl;
+    }
+    else
+    {
+        cout<<"Failed"<<endl;
+    }
+}
