@@ -18,7 +18,7 @@ more version info:
 //ctor (by default it initailize with empty string)
 String::String(const char* str)
 {
-    m_str = new char[strlen (str + 1)];
+    m_str = new char[strlen (str) + 1];
     strcpy(m_str, str);
 }
 
@@ -32,7 +32,7 @@ String::~String()
 //cctor
 String::String(const String& other)
 {
-    this->m_str = other.m_str;
+    strcpy(this->m_str, other.m_str);
 }
 
 //copy assignment operator
