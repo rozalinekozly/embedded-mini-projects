@@ -48,18 +48,15 @@ void TestCtor()
     cout << "--- Testing Ctor ---" << endl;
     
     cout << "\tdefault argument (empty string) test: ";
-    {
-        String x;
-        const char* expected = "";
-        CmpToExpectedString(x, expected);
-    }
+    String x1;
+    const char* expected1 = "";
+    CmpToExpectedString(x1, expected1);
 
     cout << "\tArgument test: ";
-    {
-        String x("hello world");
-        const char* expected = "hello world"; 
-        CmpToExpectedString(x, expected);
-    }    
+
+    String x2("hello world");
+    const char* expected2 = "hello world"; 
+    CmpToExpectedString(x2, expected2);
 }
 
 void TestCctor()
