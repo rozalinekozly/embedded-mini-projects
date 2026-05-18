@@ -38,7 +38,7 @@ String::String(const String& other)
 //copy assignment operator
 String& String:: operator=(const String& other)
 {
-    this->m_str = other.m_str;
+    strcpy(this->m_str, other.m_str);
     return (*this);
 }
 // -----------------------------------------------------
@@ -57,8 +57,8 @@ bool String::operator!=(const String& other) const
 }
 
 // --------------------------------------------------
-String& String::operator+=(const String& other_)
+/*String& String::operator+=(const String& other_)
 {
 
-}
+}*/
 };//end of namespace hrd42
