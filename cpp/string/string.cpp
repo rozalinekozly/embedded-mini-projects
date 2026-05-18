@@ -32,6 +32,7 @@ String::~String()
 //cctor
 String::String(const String& other)
 {
+    this->m_str = new char[strlen(other.m_str) + 1];
     strcpy(this->m_str, other.m_str);
 }
 
