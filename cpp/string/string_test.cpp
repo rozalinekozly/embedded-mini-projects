@@ -8,6 +8,7 @@ void TestCtor();
 void TestCctor();
 void TestCopyAssignmentOperator();
 void TestEqualAndNonEqualOperator();
+void TestConcatOperation();
 
 // helper function to compare between 2 strings, prints to terminal the results
 static void CmpToExpectedString(String test_res, String expected);
@@ -18,6 +19,7 @@ int main()
     TestCctor();
     TestCopyAssignmentOperator();
     TestEqualAndNonEqualOperator();
+    TestConcatOperation();
 
     return 0;
 }
@@ -96,4 +98,19 @@ static void CmpToExpectedString(String test_res, String expected)
     {
         cout<<"Failed"<<endl;
     }
+}
+
+void TestConcatOperation()
+{
+    cout << "--- Testing Concat operation ---" << endl;
+    String s1 = "hello";
+    String s2 = "world";
+
+    cout << "\t operator +" << endl;
+    cout << "\t" << s1 << " + " << s2<< " is " << s1+s2 << endl;
+
+    cout <<"\t operator +="<<endl;
+    cout << "\t" << s1 << " += " << s2<< " is " ;
+    s1 += s2;
+    cout<< s1 << endl;
 }
