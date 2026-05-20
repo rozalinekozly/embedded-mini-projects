@@ -1,6 +1,8 @@
 #include <iostream> 
 #include "string.hpp"
 
+#include <string.h>
+
 using namespace hrd42;
 using namespace std;
 
@@ -9,6 +11,7 @@ void TestCctor();
 void TestCopyAssignmentOperator();
 void TestEqualAndNonEqualOperator();
 void TestConcatOperation();
+void TestLength();
 
 // helper function to compare between 2 strings, prints to terminal the results
 static void CmpToExpectedString(String test_res, String expected);
@@ -20,6 +23,7 @@ int main()
     TestCopyAssignmentOperator();
     TestEqualAndNonEqualOperator();
     TestConcatOperation();
+    TestLength();
 
     return 0;
 }
@@ -113,4 +117,13 @@ void TestConcatOperation()
     cout << "\t" << s1 << " += " << s2<< " is " ;
     s1 += s2;
     cout<< s1 << endl;
+}
+
+void TestLength()
+{
+    String str = "string with length 21";
+
+    // compare implementation result to the expected C-string literal length
+    cout<<"library result is "<< strlen("string with length 21")<<" my implementation result is "<< str.Length() <<endl;
+
 }
