@@ -25,6 +25,7 @@ String::String(const char* str)
     this->m_str = new char[strlen (str) + 1];
     strcpy(m_str, str);
 }
+// --------------------------------------------------
 
 //dtor 
 String::~String()
@@ -32,6 +33,7 @@ String::~String()
     delete[] this->m_str;
     this->m_str = nullptr;
 }
+// --------------------------------------------------
 
 //cctor
 String::String(const String& other)
@@ -39,6 +41,7 @@ String::String(const String& other)
     this->m_str = new char[strlen(other.m_str) + 1];
     strcpy(this->m_str, other.m_str);
 }
+// --------------------------------------------------
 
 //copy assignment operator
 String& String:: operator=(const String& other)
@@ -46,7 +49,7 @@ String& String:: operator=(const String& other)
     strcpy(this->m_str, other.m_str);
     return (*this);
 }
-// -----------------------------------------------------
+// --------------class member funcs------------------------
 bool String::operator==(const String& other) const
 {
     if(strcmp(this->m_str , other.m_str) != 0)
@@ -55,7 +58,7 @@ bool String::operator==(const String& other) const
     }
     return true;
 }
-
+// --------------------------------------------------
 bool String::operator!=(const String& other) const
 {
     return !(this->operator==(other));
@@ -66,7 +69,7 @@ size_t String::Length() const
 {
     return(strlen(this->m_str));
 }
-
+// --------------------------------------------------
 String& String::operator+=(const String& other_)
 {
     char* concated_str = new char[this->Length() + other_.Length() + 1];
@@ -79,30 +82,30 @@ String& String::operator+=(const String& other_)
     return (*this);
 
 }
-
+// --------------------------------------------------
 const char* String::Cstr() const
 {
     return (this->m_str);
 }
-
-const String operator+(const String& lhs, const String& rhs)
-{
-    return (String(lhs)+= rhs);
-}
-
+// ------------friend methods------------------------
 std::istream& operator>>(std::istream& is, String& str)
 {
     char str_holder[MAX_LEN_STR] = {'\0'};
-
+    
     is.getline(str_holder, MAX_LEN_STR);
     //assuming input is valid
     str = String(str_holder);
     return is;
 }
-
+// --------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const String& str)
 {
     return os << str.m_str;
 }
 
+// ------------non members---------------------------
+const String operator+(const String& lhs, const String& rhs)
+{
+    return (String(lhs)+= rhs);
+}
 };//end of namespace hrd42
