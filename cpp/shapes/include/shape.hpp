@@ -2,6 +2,9 @@
 #ifndef ILRD_HRD42_SHAPE_HPP
 #define ILRD_HRD42_SHAPE_HPP
 
+#include "glut_utils.h"
+#include "point.hpp"
+
 namespace hrd42
 {
 class Shape // non copyable
