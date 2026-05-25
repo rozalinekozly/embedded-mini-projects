@@ -7,6 +7,7 @@
 namespace hrd42
 {
 
+class String; 
 const String operator+(const String& lhs, const String& rhs);
 
 std::istream& operator>>(std::istream& is, String& str);
