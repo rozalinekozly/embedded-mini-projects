@@ -9,7 +9,7 @@ void Point::AdjustBy(Point p)
     this->m_x += p.m_x;
     this->m_y += p.m_y;
 }
-double Point::Length()
+float Point::Length()
 {
     float x_square = this->m_x *  this->m_x;
     float y_square = this->m_y * this->m_y;
