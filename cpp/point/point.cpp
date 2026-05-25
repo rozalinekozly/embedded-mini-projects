@@ -4,6 +4,11 @@
 
 namespace hrd42
 {
+Point::Point(int x, int y)
+{
+    this->m_x = x;
+    this->m_y = y;
+}
 void Point::AdjustBy(Point p)
 {
     this->m_x += p.m_x;
