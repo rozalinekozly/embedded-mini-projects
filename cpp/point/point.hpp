@@ -18,5 +18,8 @@ struct Point
     int m_y;
 };
 
+//non-members
+Point Add(Point p1, Point p2);
+
 }//namespace hrd42
 #endif  // __ILRD_HRD42_COMPLEX_HPP__
