@@ -8,12 +8,15 @@ using namespace hrd42;
 void TestPrint();
 void TestCtor();
 void TestLength();
+//---------------
+void TestAdd();
 
 int main()
 {
     TestPrint();
     TestCtor();
     TestLength();
+    TestAdd();
 
     return 0;
 }
@@ -40,4 +43,18 @@ void TestLength()
     
     p1.Print();
     cout<<"length from 0,0 is "<< len << endl;
+}
+
+void TestAdd()
+{
+    Point p1(3,8);
+    Point p2(5,12);
+
+    cout<<"sum of ";
+    p1.Print();
+    cout<<"and ";
+    p2.Print();
+    cout<<"is ";
+    Add(p1,p2).Print();
+
 }
