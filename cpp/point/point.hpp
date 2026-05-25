@@ -10,9 +10,9 @@ struct Point
     Point(int x = 0, int y = 0);
     //relying on generated dtor, cctor and copy assignment operator
     void AdjustBy(Point p);
-    double Length();
-    void Print();
-    
+    float Length();
+    void Print(char first_parantheses = '(', char second_parantheses = ')');
+
     //data
     int m_x;
     int m_y;
