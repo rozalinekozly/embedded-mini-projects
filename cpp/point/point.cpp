@@ -26,4 +26,15 @@ void Point::Print(char first_parantheses, char second_parantheses)
     std::cout<< first_parantheses << this->m_x << "," 
     << this->m_y << second_parantheses <<std::endl;
 }
+
+Point Add(Point p1, Point p2)
+{
+    Point ret;
+    ret.m_x = p1.m_x + p2.m_x;
+    ret.m_y = p1.m_y + p2.m_y;
+
+    return ret;
+
+}
+
 }//namespace hrd42
