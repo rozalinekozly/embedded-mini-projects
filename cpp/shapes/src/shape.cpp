@@ -1,5 +1,5 @@
-#include "../include/shape.hpp"
-#include "../include/point.hpp"
+#include "shape.hpp"
+#include "point.hpp"
 
 using namespace ilrd;
 using namespace hrd42;
