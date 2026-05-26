@@ -5,6 +5,8 @@
 #include "glut_utils.h"
 #include "point.hpp"
 
+using namespace ilrd;
+
 namespace hrd42
 {
 class Shape // non copyable
@@ -24,6 +26,8 @@ public:
     
     virtual Shape* Clone() const = 0; // pure?
 
+    //Shape(const Shape& other);
+    //relying on generated one ? 
     COLORS GetColor() const;
     double GetAngle() const;
     Point GetPoint() const;
@@ -33,7 +37,7 @@ private:
     double m_angle;
     COLORS m_color;
     
-    Shape(const Shape& other);
+    
     Shape& operator=(const Shape& other);
 };
 

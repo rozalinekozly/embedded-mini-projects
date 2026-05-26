@@ -13,13 +13,14 @@ class Line : public Shape // non copyable
 public:
     explicit Line(const ilrd::Point& center,
                   double length = 1,
-                  double angle = 0,
+                  double angle = 0,    
                   COLORS color = COLOR_WHITE);
     // using generated dtor
 
     virtual Line& Draw() const;
     virtual Line* Clone() const;
 
+    double GetLength() const;
 private:
     double m_length;
 };

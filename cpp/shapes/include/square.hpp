@@ -19,7 +19,8 @@ public:
 
     virtual Square& Draw() const;
     virtual Square* Clone() const;
-
+    
+    double GetWidth() const;
 private:
     double m_width;
 };
