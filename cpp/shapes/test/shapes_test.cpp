@@ -3,6 +3,7 @@
 #include "circle.hpp"
 #include "line.hpp"
 #include "square.hpp"
+#include "rectangle.hpp"
 #include "group.hpp"
 
 #include "point.hpp"
@@ -42,6 +43,8 @@ Point line1_center(300, 500);
 Point square1_center(400,500);
 Point square2_center(300,600);
 
+Point rectangle1_center(300,500);
+
 int current_color_idx = 0;
 
 Circle c1(circle1_center, 120, 30, FillColor(COLOR_WHITE));
@@ -51,6 +54,7 @@ Line l1(line1_center, 200, 70, FillColor(COLOR_WHITE));
 
 Square s1(square1_center, 200, 60, FillColor(COLOR_CYAN));
 
+Rectangle r1(rectangle1_center, 100, 500, 78, FillColor(COLOR_GREEN));
 
 Circle c3(circle3_center, 250, 0, FillColor(COLOR_YELLOW));
 Circle c4(circle4_center, 270, 0 , FillColor(COLOR_BLUE));
@@ -86,6 +90,7 @@ static void DrawFunction()
     c2.Draw();
     l1.Draw();
     s1.Draw();
+    r1.Draw();
 
     group1.Draw();
 
@@ -114,7 +119,9 @@ static int TimerFunction()
 
     s1.Move(10,20);
 
-    group1.Revolve(Point(SCREEN_WIDTH/2,SCREEN_HEIGHT/2),50);
+    r1.Move(-1,-1);
+    //group1.Revolve(Point(SCREEN_WIDTH/2,SCREEN_HEIGHT/2),50);
+    group1.Move(20,1);
 
     return 1;  
 }

@@ -14,12 +14,15 @@ public:
     explicit Rectangle(const ilrd::Point& center,
                        double width = 1, double height = 1,
                        double angle = 0,
-                       COLORS color = COLOR_WHITE           );
+                       COLORS color = COLOR_WHITE);
     // using generated dtor
 
     virtual Rectangle& Draw() const;
     virtual Rectangle* Clone() const;
 
+    double GetWidth() const;
+    double GetHeight() const;
+    
 private:
     double m_width;
     double m_height;
