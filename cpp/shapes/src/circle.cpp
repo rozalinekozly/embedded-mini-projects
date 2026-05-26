@@ -5,9 +5,9 @@ using namespace ilrd;
 using namespace hrd42;
 
 Circle::Circle(const ilrd::Point& center,
-                    double radius = 1,
-                    double angle = 0,
-                    COLORS color = COLOR_WHITE)  : Shape(center, angle, color)
+                    double radius ,
+                    double angle,
+                    COLORS color)  : Shape(center, angle, color)
 {
     this->m_radius = radius;
 
@@ -20,9 +20,10 @@ double Circle::GetRadius() const
 
 Circle* Circle::Clone() const
 {
-    //can just call the cctor 
-    return new Circle(this->GetPoint(), this->GetRadius(),
-                    this->GetAngle(), this->GetColor());
+    //TODO: can just call the cctor (unblock it from shape api)
+   /* return new Circle(this->GetPoint(), this->GetRadius(),
+                    this->GetAngle(), this->GetColor());*/
+    return (new Circle(*this));
 }
 
 
