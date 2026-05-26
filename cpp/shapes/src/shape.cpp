@@ -23,18 +23,18 @@ Shape& Shape::Move(double x_offest, double y_offset)
 {
     Step(&(this->m_center), x_offest, y_offset);
     return (*this);
-    //this->m_center += Point(x_offest, y_offset);
 }
+
 Shape& Shape::Rotate(double angle)
 {
-    this->m_center.Revolve(this->m_center, angle);
+    this->m_angle += angle;
     return (*this);
 }
 
 Shape& Shape::Revolve(const ilrd::Point& pivot, double angle)
 {
-    this->m_center.Revolve(pivot, angle);
-    return (*this);
+    this->m_center = this->m_center.Revolve(pivot, angle);
+    return (this->Rotate(angle));
 }
 
 
@@ -42,5 +42,20 @@ Shape& Shape::SetColor(COLORS color)
 {
     this->m_color = color;
     return (*this);
+}
+
+COLORS Shape:: GetColor() const
+{
+    return (this->m_color);
+}
+
+double Shape::GetAngle() const
+{
+    return (this->m_angle);
+}
+
+Point Shape::GetPoint() const
+{
+    return (this->m_center);
 }
 
