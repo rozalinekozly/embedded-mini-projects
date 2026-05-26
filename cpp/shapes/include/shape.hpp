@@ -24,9 +24,9 @@ public:
     
     virtual Shape* Clone() const = 0; // pure?
 
-    COLORS GetColor();
-    double GetAngle();
-    Point GetPoint();
+    COLORS GetColor() const;
+    double GetAngle() const;
+    Point GetPoint() const;
 
 private:
     ilrd::Point m_center;
