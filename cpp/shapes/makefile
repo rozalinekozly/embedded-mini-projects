@@ -10,7 +10,7 @@ TARGET   = res
 
 CPPS = src/shape.cpp src/circle.cpp src/line.cpp src/square.cpp src/rectangle.cpp src/group.cpp
 
-all: demo
+all: shapes_test
 
 demo: src/demo.c
 	$(CXX) src/demo.c $(CXXFLAGS) $(LDFLAGS) $(LIBS) -o $(TARGET)
