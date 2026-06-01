@@ -5,7 +5,6 @@
 #define DTOR_IDX        0   
 #define DISPLAY_IDX     1   
 #define WASH_IDX        2   
-#define DELETE_IDX      3  
 
 static int count = 0;
 // template 
@@ -257,7 +256,7 @@ int main(int argc, char** argv, char** envp)
 
     Special_Taxi st;
 
-    
+
 
 
 
