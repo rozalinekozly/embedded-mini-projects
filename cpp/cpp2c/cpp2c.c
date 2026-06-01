@@ -9,6 +9,8 @@
 
 static int count = 0;
 
+#define maxFunc(a, b) ((a) > (b) ? (a) : (b))
+
 typedef void (*VirtualMethod)(void*);
 
 //---------------------------------------------------------------
@@ -94,6 +96,13 @@ void Minibus_Ctor(void* this)
     self->m_numSeats= 20;
     printf("Minibus::Ctor()\n");
 }
+
+void Minibus_Cctor(Minibus* this, Minibus* other)
+{
+    Public_Transport_Cctor(&this->base_class, &other->base_class);
+    this->m_numSeats = other->m_numSeats;
+}
+
 void  Minibus_Dtor(void* this)
 {
     Minibus* self = (Minibus*)this;
@@ -114,48 +123,99 @@ void Minibus_Wash(void* this)
     printf("Minibus::Wash() ID: %d\n",Public_Transport_GetId(&self->base_class));
 }
 //------------------------------------------------------------------------------
+//Taxi class
+
+typedef struct 
+{
+    Public_Transport base_class;
+} Taxi;
+
+void  Taxi_Dtor(void* this);
+void Taxi_Display(void* this);
+void Taxi_Wash(void* this);
+
+static VirtualMethod Taxi_Vtable[] =
+{
+    Taxi_Dtor, 
+    Taxi_Display
+};
+
+// ctor
+void Taxi_Ctor(void* this)
+{
+    Taxi* self = (Minibus*)this;
+    Public_Transport_Ctor(&self->base_class); 
+    self-> base_class.vptr = Taxi_Vtable;
+    printf("Taxi::Ctor()\n");
+}
+
+void Taxi_Cctor(Taxi* this, Taxi* other)
+{
+    Public_Transport_Cctor(&this->base_class, &other->base_class);
+}
+
+void  Taxi_Dtor(void* this)
+{
+    Taxi* self = (Taxi*)this;
+    printf("Taxi::dtor()\n");
+    Public_Transport_Dtor(&self->base_class);
+}
+
+void Taxi_Display(void* this)
+{
+    Taxi* self = (Taxi*)this;
+    printf("Taxi::Display() ID %d", Public_Transport_GetId(&self->base_class));
+}
+//------------------------------------------------------------------------------
+//special taxi class
+typedef struct 
+{
+    Taxi base_class;
+
+} Special_Taxi;
+
+void  Special_Taxi_Dtor(void* this);
+void Special_Taxi_Display(void* this);
+
+static VirtualMethod Special_Taxi_Vtable[] =
+{
+    Special_Taxi_Dtor, 
+    Special_Taxi_Display
+};
+
+
+//ctor
+void Special_Taxi_Ctor(Special_Taxi* this)
+{
+    Taxi_Ctor(&this->base_class);
+    this->base_class.base_class.vptr = Special_Taxi_Vtable;
+    printf("Special_Taxi::Ctor()\n");
+}
+
+//cctor
+void Special_Taxi_Cctor(Special_Taxi* this, Special_Taxi* other)
+{
+    Taxi_Ctor(&this->base_class);
+    printf("Special_Taxi::CCtor()\n");
+}
+
+//dtor
+void Special_Taxi_Dtor(void* this)
+{
+    //Special_Taxi* self = (Special_Taxi*)this;
+    printf("Special_Taxi::dtor()\n");
+}
+
+//display
+void Special_Taxi_Display(void* this)
+{
+    Special_Taxi* self = (Special_Taxi*)this;
+    printf("Special_Taxi::Display() ID: %d\n",GetId(self->base_class.base_class));
+}
+//------------------------------------------------------------------------------
 int main(int argc, char** argv, char** envp)
 {
-    printf("--- 1. Testing Standalone Base Class ---\n");
-    Public_Transport pt;
-    Public_Transport_Ctor(&pt);
-    pt.vptr[DISPLAY_IDX](&pt); // Virtual call to Display (Index 1)
-    printf("\n");
-
-    printf("--- 2. Testing Derived Class (Minibus) ---\n");
-    Minibus m;
-    Minibus_Ctor(&m); // Automatically runs Public_Transport_Ctor first
-    
-    // Virtual call to Minibus Display (Index 1) via the base_class pointer
-    m.base_class.vptr[DISPLAY_IDX](&m); 
-    
-    // Virtual call to Minibus Wash (Index 2)
-    m.base_class.vptr[WASH_IDX](&m);
-    printf("\n");
-
-    printf("--- 3. Testing Global Count Tracking ---\n");
-    Public_Transport_PrintCount();
-    printf("\n");
-
-    printf("--- 4. Testing Polymorphic Base Pointer Pass ---\n");
-    // You can safely cast a Minibus pointer to a Public_Transport pointer
-    Public_Transport* poly_ptr = (Public_Transport*)&m;
-    
-    // This executes Minibus_Display because poly_ptr->vptr points to Minibus_Vtable
-    poly_ptr->vptr[DISPLAY_IDX](poly_ptr);
-    printf("\n");
-
-    printf("--- 5. Testing Manual Copy Constructor (CCtor) ---\n");
-    Public_Transport pt_copy;
-    Public_Transport_Cctor(&pt_copy, &pt);
-    pt_copy.vptr[DISPLAY_IDX](&pt_copy);
-    printf("\n");
-
-    printf("--- 6. Explicit Cleanup (Destructors) ---\n");
-    // C does not call destructors automatically, we must do it manually
-    m.base_class.vptr[DTOR_IDX](&m); // Calls Minibus_Dtor
-    pt.vptr[DTOR_IDX](&pt);          // Calls Public_Transport_Dtor
-    pt_copy.vptr[DTOR_IDX](&pt_copy);
+   
 
     return 0;
 }
