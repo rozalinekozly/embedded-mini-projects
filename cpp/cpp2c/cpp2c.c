@@ -8,7 +8,7 @@
 #define DELETE_IDX      3  
 
 static int count = 0;
-
+// template 
 #define maxFunc(a, b) ((a) > (b) ? (a) : (b))
 
 typedef void (*VirtualMethod)(void*);
@@ -68,6 +68,11 @@ int Public_Transport_GetId(Public_Transport* this)
 {
     return (this->m_license_plate);
 }
+
+VirtualMethod* Public_Transport_Get_Vptr(Public_Transport* this)
+{
+    return (this->vptr);
+}
 //------------------------------------------------------------------------------
 typedef struct
 {
@@ -100,6 +105,7 @@ void Minibus_Ctor(void* this)
 void Minibus_Cctor(Minibus* this, Minibus* other)
 {
     Public_Transport_Cctor(&this->base_class, &other->base_class);
+    this->base_class.vptr = Minibus_Vtable;
     this->m_numSeats = other->m_numSeats;
 }
 
@@ -122,6 +128,11 @@ void Minibus_Wash(void* this)
     Minibus* self = (Minibus*)this;
     printf("Minibus::Wash() ID: %d\n",Public_Transport_GetId(&self->base_class));
 }
+
+VirtualMethod* Minibus_Get_Vptr(Minibus* this)
+{
+    return (this->base_class.vptr);
+}
 //------------------------------------------------------------------------------
 //Taxi class
 
@@ -143,7 +154,7 @@ static VirtualMethod Taxi_Vtable[] =
 // ctor
 void Taxi_Ctor(void* this)
 {
-    Taxi* self = (Minibus*)this;
+    Taxi* self = (Taxi*)this;
     Public_Transport_Ctor(&self->base_class); 
     self-> base_class.vptr = Taxi_Vtable;
     printf("Taxi::Ctor()\n");
@@ -152,6 +163,7 @@ void Taxi_Ctor(void* this)
 void Taxi_Cctor(Taxi* this, Taxi* other)
 {
     Public_Transport_Cctor(&this->base_class, &other->base_class);
+    this->base_class.vptr = Taxi_Vtable;
 }
 
 void  Taxi_Dtor(void* this)
@@ -166,11 +178,16 @@ void Taxi_Display(void* this)
     Taxi* self = (Taxi*)this;
     printf("Taxi::Display() ID %d", Public_Transport_GetId(&self->base_class));
 }
+
+VirtualMethod* Taxi_Get_Vptr(Taxi* this)
+{
+    return (this->base_class.vptr);
+}
 //------------------------------------------------------------------------------
 //special taxi class
 typedef struct 
 {
-    Taxi base_class;
+    Taxi base_class_taxi;
 
 } Special_Taxi;
 
@@ -187,35 +204,62 @@ static VirtualMethod Special_Taxi_Vtable[] =
 //ctor
 void Special_Taxi_Ctor(Special_Taxi* this)
 {
-    Taxi_Ctor(&this->base_class);
-    this->base_class.base_class.vptr = Special_Taxi_Vtable;
+    Taxi_Ctor(&this->base_class_taxi);
+    this->base_class_taxi.base_class.vptr = Special_Taxi_Vtable;
     printf("Special_Taxi::Ctor()\n");
 }
 
 //cctor
 void Special_Taxi_Cctor(Special_Taxi* this, Special_Taxi* other)
 {
-    Taxi_Ctor(&this->base_class);
+    Taxi_Ctor(&this->base_class_taxi);
+    this->base_class_taxi.base_class.vptr = Special_Taxi_Vtable;
     printf("Special_Taxi::CCtor()\n");
 }
 
 //dtor
 void Special_Taxi_Dtor(void* this)
 {
-    //Special_Taxi* self = (Special_Taxi*)this;
+    Special_Taxi* self = (Special_Taxi*)this;
     printf("Special_Taxi::dtor()\n");
+    Taxi_Dtor(&self->base_class_taxi);
 }
 
 //display
 void Special_Taxi_Display(void* this)
 {
     Special_Taxi* self = (Special_Taxi*)this;
-    printf("Special_Taxi::Display() ID: %d\n",GetId(self->base_class.base_class));
+    printf("Special_Taxi::Display() ID: %d\n", Public_Transport_GetId(&self->base_class_taxi.base_class));
 }
+
+VirtualMethod* Special_Taxi_Get_Vptr(Special_Taxi* this)
+{
+    return (this->base_class_taxi.base_class.vptr);
+}
+
+//------------------------------------------------------------------------------
+//public convoy
+/*typedef struct 
+{
+    Public_Transport* m_pt1;
+    Public_Transport* m_pt2;
+    Minibus m_m;
+    Taxi m_t;
+}Public_Convoy;*/
 //------------------------------------------------------------------------------
 int main(int argc, char** argv, char** envp)
 {
-   
+   Minibus pt;
+
+    Minibus_Ctor(&pt);
+    Minibus_Get_Vptr(&pt)[DISPLAY_IDX](&pt);
+    Minibus_Get_Vptr(&pt)[DTOR_IDX](&pt);
+
+    Special_Taxi st;
+
+    
+
+
 
     return 0;
 }
