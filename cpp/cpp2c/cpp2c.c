@@ -45,21 +45,21 @@ void Public_Transport_Ctor(Public_Transport* this)
 {
     this->m_license_plate = ++count;
     Public_Transport_Set_Vptr(this);
-    printf("Public_Transport::Ctor()\n");
+    printf("Public_Transport::Ctor() %d\n", this->m_license_plate);
 }
 
 void Public_Transport_Cctor(Public_Transport* this, const Public_Transport* other)
 {
     this->m_license_plate = ++count; 
     Public_Transport_Set_Vptr(this);
-    printf("Public_Transport::CCtor()\n");
+    printf("Public_Transport::CCtor() %d\n", this->m_license_plate);
 }
 
 void Public_Transport_Dtor(void* this)
 {
-    //Public_Transport* self = (Public_Transport*)this;
+    Public_Transport* self = (Public_Transport*)this;
     --count;
-    printf("Public_Transport::Dtor()\n");
+    printf("Public_Transport::Dtor() %d\n", self->m_license_plate);
 }
 
 void Public_Transport_Display(void* this)
@@ -204,7 +204,7 @@ void  Taxi_Dtor(void* this)
 void Taxi_Display(void* this)
 {
     Taxi* self = (Taxi*)this;
-    printf("Taxi::Display() ID %d", Public_Transport_GetId(&self->base_class));
+    printf("Taxi::Display() ID %d\n", Public_Transport_GetId(&self->base_class));
 }
 
 static VirtualMethod* Taxi_Get_Vptr(Taxi* this)
@@ -409,9 +409,9 @@ int main(int argc, char **argv, char **envp)
     Minibus m;
     Minibus_Ctor(&m);
     PrintInfo((Public_Transport*)&m);
-    
     Public_Transport sliced_return = PrintInfo_Int(3);
     sliced_return.vptr[DISPLAY_IDX](&sliced_return);
+
     Public_Transport_Dtor(&sliced_return);
 
     Public_Transport* array[3];
@@ -495,20 +495,20 @@ int main(int argc, char **argv, char **envp)
     PrintSepperator();
 
     ts1->base_class.vptr[DISPLAY_IDX](ts1);
-   // ts2->base_class.vptr[DISPLAY_IDX](ts2);
+    ts2->base_class.vptr[DISPLAY_IDX](ts2);
     
-   // ts1->base_class.vptr[DTOR_IDX](ts1);
-   // free(ts1);
+    ts1->base_class.vptr[DTOR_IDX](ts1);
+    free(ts1);
 
-   // ts2->base_class.vptr[DISPLAY_IDX](ts2);
-    //ts2->base_class.vptr[DTOR_IDX](ts2);
-    //free(ts2);
+    ts2->base_class.vptr[DISPLAY_IDX](ts2);
+    ts2->base_class.vptr[DTOR_IDX](ts2);
+    free(ts2);
 
     PrintSepperator();
 
-   /* for(int i = 2; i >= 0; --i) Public_Transport_Dtor(&arr2[i]);
+    for(int i = 2; i >= 0; --i) Public_Transport_Dtor(&arr2[i]);
     for(int i = 3; i >= 0; --i) Minibus_Dtor(&arr3[i]);
     Minibus_Dtor(&m);
-*/
+
     return 0;
 }

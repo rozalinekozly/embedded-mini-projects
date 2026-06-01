@@ -210,7 +210,7 @@ std::cout<<"---------------------------"<<endl;
 	ts2->Display();
 	delete ts1;
 
-	ts2->Display(); // this crashes. fix the bug!
+	ts2->Display(); 
 	delete ts2;
 
  std::cout<<"---------------------------"<<endl;
