@@ -49,6 +49,7 @@ void Public_Transport_Cctor(Public_Transport* this, const Public_Transport* othe
 void Public_Transport_Dtor(void* this)
 {
     Public_Transport* self = (Public_Transport*)this;
+    --count;
     printf("Public_Transport::Dtor()\n");
 }
 
@@ -252,9 +253,15 @@ int main(int argc, char** argv, char** envp)
 
     Minibus_Ctor(&pt);
     Minibus_Get_Vptr(&pt)[DISPLAY_IDX](&pt);
+    Minibus_Get_Vptr(&pt)[WASH_IDX](&pt);
     Minibus_Get_Vptr(&pt)[DTOR_IDX](&pt);
 
     Special_Taxi st;
+
+    Special_Taxi_Ctor(&st);
+    Special_Taxi_Get_Vptr(&st)[DISPLAY_IDX](&st);
+    Special_Taxi_Get_Vptr(&st)[DTOR_IDX](&st);
+    
 
 
 
