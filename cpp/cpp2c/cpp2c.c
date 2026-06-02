@@ -414,7 +414,7 @@ int main(int argc, char **argv, char **envp)
 
     Public_Transport_Dtor(&sliced_return);
 
-    Public_Transport* array[3];
+    /*Public_Transport* array[3];
     
     array[0] = (Public_Transport*)malloc(sizeof(Minibus));
     Minibus_Ctor((Minibus*)array[0]);
@@ -506,9 +506,17 @@ int main(int argc, char **argv, char **envp)
 
     PrintSepperator();
 
-    for(int i = 2; i >= 0; --i) Public_Transport_Dtor(&arr2[i]);
-    for(int i = 3; i >= 0; --i) Minibus_Dtor(&arr3[i]);
+    for(int i = 2; i >= 0; --i) 
+    {
+        Public_Transport_Dtor(&arr2[i]);
+    }
+    for(int i = 3; i >= 0; --i)
+    {
+      Minibus_Dtor(&arr3[i]);  
+    } 
     Minibus_Dtor(&m);
+
+    PrintSepperator();*/
 
     return 0;
 }

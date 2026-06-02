@@ -147,6 +147,7 @@ void TaxiDisplay(Taxi s) { s.Display(); }
 
 int main(int argc, char **argv, char **envp)
 {
+	/*std::cout<<"---------------------------"<<endl;
 	Minibus m;
 	PrintInfo(m);
 	PrintInfo(3).Display();
@@ -201,8 +202,8 @@ Public_Transport arr2[] =
 std::cout<<"---------------------------"<<endl;
 
 
-
-	Public_Convoy *ts1 = new Public_Convoy(); 
+*/
+	/*Public_Convoy *ts1 = new Public_Convoy(); 
 	Public_Convoy *ts2 = new Public_Convoy(*ts1); 
 std::cout<<"---------------------------"<<endl;
 
@@ -212,7 +213,13 @@ std::cout<<"---------------------------"<<endl;
 
 	ts2->Display(); 
 	delete ts2;
+*/
 
- std::cout<<"---------------------------"<<endl;
+
+///my code
+	Public_Convoy pc;
+	std::cout<<"---------------------------"<<endl;
+	Public_Convoy pc2 = pc;
+ std::cout<<"-----------called by the compiler ---------"<<endl;
 	return 0;
 } 
