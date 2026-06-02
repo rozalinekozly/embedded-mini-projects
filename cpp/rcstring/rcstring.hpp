@@ -1,5 +1,5 @@
-#ifndef __ILRD_HRD42_STRING_HPP__
-#define __ILRD_HRD42_STRING_HPP__
+#ifndef __ILRD_HRD42_RCSTRING_HPP__
+#define __ILRD_HRD42_RCSTRING_HPP__
 
 #include <iosfwd> // istream, ostream
 #include <cstddef>  // size_t
