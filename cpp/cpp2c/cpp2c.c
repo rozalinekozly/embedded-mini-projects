@@ -126,11 +126,13 @@ void Minibus_Cctor(Minibus* this, Minibus* other)
     Public_Transport_Cctor(&this->base_class, &other->base_class);
     Minibus_Set_Vptr(this);
     this->m_numSeats = other->m_numSeats;
+    printf("Minibus::CCtor()\n");
 }
 
 void  Minibus_Dtor(void* this)
 {
     Minibus* self = (Minibus*)this;
+    Public_Transport_Set_Vptr(&self->base_class);
     printf("Minibus::dtor()\n");
     Public_Transport_Dtor(&self->base_class);
 }
@@ -192,6 +194,7 @@ void Taxi_Cctor(Taxi* this, Taxi* other)
 {
     Public_Transport_Cctor(&this->base_class, &other->base_class);
     Taxi_Set_Vptr(this);
+    printf("Taxi::CCtor()\n");
 }
 
 void  Taxi_Dtor(void* this)
@@ -259,6 +262,7 @@ void Special_Taxi_Dtor(void* this)
 {
     Special_Taxi* self = (Special_Taxi*)this;
     printf("Special_Taxi::dtor()\n");
+
     Taxi_Dtor(&self->base_class_taxi);
 }
 
@@ -312,8 +316,6 @@ void Public_Convoy_Ctor(Public_Convoy* this)
 
     Minibus_Ctor(&this->m_m);
     Taxi_Ctor(&this->m_t);
-
-    printf("Public Convoy Ctor\n");
 }
 
 void Public_Convoy_Cctor(Public_Convoy* this, Public_Convoy* other)
@@ -331,22 +333,26 @@ void Public_Convoy_Cctor(Public_Convoy* this, Public_Convoy* other)
 
     Public_Convoy_Set_Vptr(this);
 
+    printf("Public_Convoy::CCtor()\n");
+
 
 }
 void Public_Convoy_Dtor(void* this)
 {
     Public_Convoy* self = (Public_Convoy*)this;
-    free(self->m_pt1);
-    self->m_pt1 = NULL;
-    free(self->m_pt2);
-    self->m_pt2 = NULL;
 
-    Minibus_Dtor(&self->m_m);
+    self->m_pt1->vptr[DTOR_IDX](self->m_pt1);  
+    free(self->m_pt1);
+
+    self->m_pt2->vptr[DTOR_IDX](self->m_pt2);  
+    free(self->m_pt2);
+
     Taxi_Dtor(&self->m_t);
+    Minibus_Dtor(&self->m_m);
 
     Public_Transport_Dtor(&self->base_class);
 
-    printf("Public_Convoy::dtor()\n");
+   // printf("Public_Convoy::dtor()\n");
 }
 
 void Public_Convoy_Display(void* this)
@@ -380,18 +386,19 @@ void PrintInfo_Void()
     Public_Transport_PrintCount();
 }
 
-Public_Transport PrintInfo_Int(int i)
+void PrintInfo_Int(Public_Transport* temporary, int i)
 {
+    PrintSepperator();
+
     Minibus ret;
     Minibus_Ctor(&ret);
+
     printf("PrintInfo(int i)\n");
     ret.base_class.vptr[DISPLAY_IDX](&ret);
     
-    Public_Transport sliced_copy;
-    Public_Transport_Cctor(&sliced_copy, &ret.base_class);
-    
+    Public_Transport_Cctor(temporary, &ret);
+    //destroy local
     Minibus_Dtor(&ret);
-    return sliced_copy;
 }
 
 void TaxiDisplay(Taxi s)
@@ -406,15 +413,35 @@ static void PrintSepperator()
 //------------------------------------------------------
 int main(int argc, char **argv, char **envp)
 {
+    PrintSepperator();
+//--------------------------------------------------------------------
+    //CONSTRUCTING A DERIVED OBJECT
+        //compiler responsible for destroying it at the end
     Minibus m;
     Minibus_Ctor(&m);
-    PrintInfo((Public_Transport*)&m);
-    Public_Transport sliced_return = PrintInfo_Int(3);
-    sliced_return.vptr[DISPLAY_IDX](&sliced_return);
+    PrintInfo((Public_Transport*)&m); 
 
-    Public_Transport_Dtor(&sliced_return);
+    PrintSepperator();
+//--------------------------------------------------------------------
+    //CALLING A FUNCTION THAT RETURNS BY VALUE
+        /*
+          the callee creates a temporary, change it's argument list
+          to include a pointer to the temoray and changes it's return type
+          to void, within the function itself, it calls the cctor to copy to
+          temporary.
+         */
+    Public_Transport temporary;
+    PrintInfo_Int(&temporary, 3);
 
-    /*Public_Transport* array[3];
+    temporary.vptr[DISPLAY_IDX](&temporary);
+    /* temporary dies as soon as we get to ; (unless it has been catched by ref)*/
+    Public_Transport_Dtor(&temporary);
+
+    PrintSepperator();
+//--------------------------------------------------------------------
+    //CONSTRUCTING A POLYMORPHIC ARRAY
+        //dynamically allocated, the compiler is not responsible for destroying them
+    Public_Transport* array[3];
     
     array[0] = (Public_Transport*)malloc(sizeof(Minibus));
     Minibus_Ctor((Minibus*)array[0]);
@@ -426,28 +453,40 @@ int main(int argc, char **argv, char **envp)
     Minibus_Ctor((Minibus*)array[2]);
 
     PrintSepperator();
+//--------------------------------------------------------------------
+    //POLYMORPHISM IN RUN-TIME
+        //vptr already points to the relevant vtable
 
-    for(int i = 0; i < 3; ++i) array[i]->vptr[DISPLAY_IDX](array[i]);
+    for(int i = 0; i < 3; ++i)
+    {
+        array[i]->vptr[DISPLAY_IDX](array[i]);
+    } 
+    PrintSepperator();
+
     for(int i = 0; i < 3; ++i) 
     {
         array[i]->vptr[DTOR_IDX](array[i]);
         free(array[i]);
     }
     PrintSepperator();
+//--------------------------------------------------------------------
+    //STORING DERIVED OBJECTS BY VALUE IN A BASE TYPE ARRAY CAUSES SLICING
+    //WITH THE HELP OF THE CCTOR
 
     Public_Transport arr2[3];
     
     Minibus temp_m;
     Minibus_Ctor(&temp_m);
-    Public_Transport_Cctor(&arr2[0], &temp_m.base_class);
-    Minibus_Dtor(&temp_m);
-
+    Public_Transport_Cctor(&arr2[0], &temp_m);
+    
     Taxi temp_t;
     Taxi_Ctor(&temp_t);
-    Public_Transport_Cctor(&arr2[1], &temp_t.base_class);
-    Taxi_Dtor(&temp_t);
+    Public_Transport_Cctor(&arr2[1], &temp_t);
 
     Public_Transport_Ctor(&arr2[2]);
+
+    Taxi_Dtor(&temp_t);
+    Minibus_Dtor(&temp_m);
     PrintSepperator();
 
     for(int i = 0; i < 3; ++i) 
@@ -455,68 +494,89 @@ int main(int argc, char **argv, char **envp)
         arr2[i].vptr[DISPLAY_IDX](&arr2[i]);
     }
     PrintSepperator();
-    
+
     Public_Transport_PrintCount();
-    Minibus m2;
+    PrintSepperator();
+//--------------------------------------------------------------------
+   //THE COMPILER CALLS THE DTORS MANUALLY FOR AUTOMATICALLY ALLOCATED OBJECTS
+    Minibus m2; //compiler handle destroying
     Minibus_Ctor(&m2);
     Public_Transport_PrintCount();
-    Minibus_Dtor(&m2);
+    //Minibus_Dtor(&m2); call at the end
     PrintSepperator();
-
-    Minibus arr3[4];
+//--------------------------------------------------------------------
+   //ARRAY OF AUTOMATICALLY ALLOCATED OBJECTS 
+    Minibus arr3[4]; //compiler handle destroying
     for(int i = 0; i < 4; ++i) Minibus_Ctor(&arr3[i]);
     PrintSepperator();
-
+//--------------------------------------------------------------------
+    //ARRAY OF DYNAMICALLY ALLOCATED OBJECTS
+        // programmers responsible for destroying them, the compiler does not know how many objects are in the array, so it can't call the dtors for them
     Taxi* arr4 = (Taxi*)malloc(sizeof(Taxi) * 4);
     for(int i = 0; i < 4; ++i) Taxi_Ctor(&arr4[i]);
     for(int i = 3; i >= 0; --i) Taxi_Dtor(&arr4[i]);
     free(arr4);
     PrintSepperator();
-
-    printf("print the max\n");
+//--------------------------------------------------------------------
+// MACRO TEMPLATES
     printf("%d\n", maxFunc(1, 2));
-    
-    Special_Taxi st;
+//-------------------------------------------------------------------- 
+   // SLICING 
+    Special_Taxi st; //compiler responsible to destroy at the end of main
     Special_Taxi_Ctor(&st);
-    
-    Taxi arg_slice;
-    Taxi_Cctor(&arg_slice, &st.base_class_taxi);
-    TaxiDisplay(arg_slice);
-    Taxi_Dtor(&arg_slice);
-    
-    Special_Taxi_Dtor(&st);
     PrintSepperator();
 
+    Taxi arg_slice; 
+    Taxi_Cctor(&arg_slice, &st.base_class_taxi);
+    TaxiDisplay(arg_slice);
+    Taxi_Dtor(&arg_slice); //destroy here bc it's a temporary object ?
+    
+    //Special_Taxi_Dtor(&st); end of main
+    PrintSepperator();
+//--------------------------------------------------------------------
+    //DEEP COPY 
     Public_Convoy* ts1 = (Public_Convoy*)malloc(sizeof(Public_Convoy));
     Public_Convoy_Ctor(ts1);
-    
+    PrintSepperator();
+
     Public_Convoy* ts2 = (Public_Convoy*)malloc(sizeof(Public_Convoy));
     Public_Convoy_Cctor(ts2, ts1);
     PrintSepperator();
 
     ts1->base_class.vptr[DISPLAY_IDX](ts1);
-    ts2->base_class.vptr[DISPLAY_IDX](ts2);
-    
-    ts1->base_class.vptr[DTOR_IDX](ts1);
-    free(ts1);
-
-    ts2->base_class.vptr[DISPLAY_IDX](ts2);
-    ts2->base_class.vptr[DTOR_IDX](ts2);
-    free(ts2);
-
     PrintSepperator();
 
-    for(int i = 2; i >= 0; --i) 
-    {
-        Public_Transport_Dtor(&arr2[i]);
-    }
-    for(int i = 3; i >= 0; --i)
-    {
-      Minibus_Dtor(&arr3[i]);  
-    } 
-    Minibus_Dtor(&m);
+    ts2->base_class.vptr[DISPLAY_IDX](ts2);
+    PrintSepperator();
 
-    PrintSepperator();*/
+    ts1->base_class.vptr[DTOR_IDX](ts1);
+    free(ts1);
+    PrintSepperator();
 
+    ts2->base_class.vptr[DISPLAY_IDX](ts2);
+    PrintSepperator(); 
+
+    ts2->base_class.vptr[DTOR_IDX](ts2);
+    free(ts2);
+    PrintSepperator();
+//--------------------------------------------------------------------
+    //COMPILER IMPLICIT DESTRCTORS CALLS IN REVERSE ORDER OF CONSTRUCTION
+ Special_Taxi_Dtor(&st);         
+
+for(int i = 3; i >= 0; i--)
+{
+    Minibus_Dtor(&arr3[i]);     
+}
+
+Minibus_Dtor(&m2);              
+
+for(int i = 2; i >= 0; i--)
+{
+    Public_Transport_Dtor(&arr2[i]);  
+}
+
+Minibus_Dtor(&m);              
+PrintSepperator();
+//--------------------------------------------------------------------
     return 0;
 }

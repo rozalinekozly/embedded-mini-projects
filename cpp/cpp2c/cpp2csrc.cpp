@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 	
+void PrintSepperator();
 class Public_Transport
 {
 public:
@@ -137,6 +138,8 @@ void PrintInfo() { Public_Transport::PrintCount(); }
 
 Public_Transport PrintInfo(int i)
 {
+	PrintSepperator();
+
 	Minibus ret;
 	cout<<"PrintInfo(int i)"<<endl;
 	ret.Display();
@@ -145,15 +148,26 @@ Public_Transport PrintInfo(int i)
 
 void TaxiDisplay(Taxi s) { s.Display(); }
 
+//added to sepperate between outputs (for testing)
+void PrintSepperator()
+{
+	cout << "---------------------------" << endl;
+}
 int main(int argc, char **argv, char **envp)
 {
-	/*std::cout<<"---------------------------"<<endl;
+	PrintSepperator();
+//--------------------------------------------------------------------
+	//CONSTRUCTING A DERIVED OBJECT
 	Minibus m;
 	PrintInfo(m);
+
+	PrintSepperator();
+//--------------------------------------------------------------------
+    //CALLING A FUNCTION THAT RETURNS BY VALUE
 	PrintInfo(3).Display();
-
-
-    
+	PrintSepperator();
+//--------------------------------------------------------------------
+    //CONSTRUCTING A POLYMORPHIC ARRAY
 	Public_Transport *array[] = 
 	{
 		new Minibus(),
@@ -161,65 +175,82 @@ int main(int argc, char **argv, char **envp)
 		new Minibus()
 	};
 
-std::cout<<"---------------------------"<<endl;
-
+	PrintSepperator();
+//--------------------------------------------------------------------
+    //POLYMORPHISM IN RUN-TIME
 	for(int i = 0; i < 3; ++i) array[i]->Display();
+	PrintSepperator();
 	for(int i = 0; i < 3; ++i) delete array[i];
- std::cout<<"---------------------------"<<endl;
-
+	PrintSepperator();
+//--------------------------------------------------------------------
+    //STORING DERIVED OBJECTS BY VALUE IN A BASE TYPE ARRAY CAUSES SLICING
+    //WITH THE HELP OF THE CCTOR
 Public_Transport arr2[] =
 	{
 		Minibus(),
 		Taxi(),
 		Public_Transport()
 	};
- std::cout<<"---------------------------"<<endl;
+
+	PrintSepperator();
 
 	for(int i = 0; i < 3; ++i) 
 	{
         arr2[i].Display();
     }
-    std::cout<<"---------------------------"<<endl;
+	PrintSepperator();
+	
     
     Public_Transport::PrintCount();
+	PrintSepperator();
+//--------------------------------------------------------------------	
+   //THE COMPILER CALLS THE DTORS MANUALLY FOR AUTOMATICALLY ALLOCATED OBJECTS
     Minibus m2;
     m2.PrintCount();
-    std::cout<<"---------------------------"<<endl;
- 
- 
+	PrintSepperator();
+//--------------------------------------------------------------------
+	//ARRAY OF AUTOMATICALLY ALLOCATED OBJECTS 
 	Minibus arr3[4];
-    std::cout<<"---------------------------"<<endl;
-  
+    PrintSepperator();
+ //--------------------------------------------------------------------
+    //ARRAY OF DYNAMICALLY ALLOCATED OBJECTS
 	Taxi *arr4 = new Taxi[4];
 	delete [] arr4;
-    std::cout<<"---------------------------"<<endl;
-
-
-    std::cout<<"print the max"<<endl;
+    PrintSepperator();
+//--------------------------------------------------------------------
+// MACRO TEMPLATES
 	std::cout<<maxFunc<int>(1,2)<<std::endl;
+//-------------------------------------------------------------------- 
+   // SLICING 
 	Special_Taxi st;
+	PrintSepperator();
+
 	TaxiDisplay(st);
-std::cout<<"---------------------------"<<endl;
 
+	PrintSepperator();
+//--------------------------------------------------------------------
+    //DEEP COPY 
+	Public_Convoy *ts1 = new Public_Convoy();
+	PrintSepperator(); 
 
-*/
-	/*Public_Convoy *ts1 = new Public_Convoy(); 
 	Public_Convoy *ts2 = new Public_Convoy(*ts1); 
-std::cout<<"---------------------------"<<endl;
+	PrintSepperator();
 
 	ts1->Display();
+	PrintSepperator();
+
 	ts2->Display();
+	PrintSepperator();
+
 	delete ts1;
+	PrintSepperator();
 
 	ts2->Display(); 
+	PrintSepperator();
+
 	delete ts2;
-*/
-
-
-///my code
-	Public_Convoy pc;
-	std::cout<<"---------------------------"<<endl;
-	Public_Convoy pc2 = pc;
- std::cout<<"-----------called by the compiler ---------"<<endl;
+PrintSepperator();
+//--------------------------------------------------------------------
+    //COMPILER IMPLICIT DESTRCTORS CALLS IN REVERSE ORDER OF CONSTRUCTION
 	return 0;
 } 
