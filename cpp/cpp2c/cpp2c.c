@@ -5,16 +5,16 @@
 #define DTOR_IDX        0   
 #define DISPLAY_IDX     1   
 #define WASH_IDX        2   
-
-static int count = 0;
-// template 
+//-------------------------------------------------
 #define maxFunc(a, b) ((a) > (b) ? (a) : (b))
-
+//-------------------------------------------------
+static int count = 0;
+//-------------------------------------------------
 typedef void (*VirtualMethod)(void*);
-
-//aux for prinitng 
+//-------------------------------------------------
+//auxillary  func for prinitng 
 static void PrintSepperator();
-//---------------------------------------------------------------
+//------------------------------------------------------------------
 //Public_Transport
 typedef struct 
 {
@@ -23,7 +23,7 @@ typedef struct
     
 } Public_Transport;
 
-// forward declaration of the relevant functions for this struct
+//FORWARD DECLARATIONS------------------------------------------------
 void Public_Transport_Ctor(Public_Transport* this);
 void Public_Transport_Cctor(Public_Transport* this, const Public_Transport* other);
 void Public_Transport_Dtor(void* this);
@@ -33,56 +33,63 @@ int Public_Transport_GetId(Public_Transport* this);
 VirtualMethod* Public_Transport_Get_Vptr(Public_Transport* this);
 static void Public_Transport_Set_Vptr(Public_Transport* this);
 
-
+//VTABLE----------------------------------------------------------------
 static VirtualMethod Public_Transport_Vtable[] =
 {
     Public_Transport_Dtor, 
     Public_Transport_Display
 };
-
-// ctor
+//IMPLEMENTATION-------------------------------------------------------
+//CTOR
 void Public_Transport_Ctor(Public_Transport* this)
 {
     this->m_license_plate = ++count;
     Public_Transport_Set_Vptr(this);
     printf("Public_Transport::Ctor() %d\n", this->m_license_plate);
 }
-
+//-----------------------------------------------------------------
+//CCTOR
 void Public_Transport_Cctor(Public_Transport* this, const Public_Transport* other)
 {
     this->m_license_plate = ++count; 
     Public_Transport_Set_Vptr(this);
     printf("Public_Transport::CCtor() %d\n", this->m_license_plate);
 }
-
+//-----------------------------------------------------------------
+//DTOR
 void Public_Transport_Dtor(void* this)
 {
     Public_Transport* self = (Public_Transport*)this;
     --count;
     printf("Public_Transport::Dtor() %d\n", self->m_license_plate);
 }
-
+//-----------------------------------------------------------------
+//DISPLAY VIRTUAL
 void Public_Transport_Display(void* this)
 {
     Public_Transport* self = (Public_Transport*)this;
     printf("Public_Transport::Display(): %d\n", self->m_license_plate);
 }
-
+//-----------------------------------------------------------------
+//PRINT COUNT STATIC FUNC
 void Public_Transport_PrintCount()
 {
     printf("s_count: %d\n", count);
 }
-
+//-----------------------------------------------------------------
+//GET ID
 int Public_Transport_GetId(Public_Transport* this)
 {
     return (this->m_license_plate);
 }
-
+//-----------------------------------------------------------------
+//HELPER
 VirtualMethod* Public_Transport_Get_Vptr(Public_Transport* this)
 {
     return (this->vptr);
 }
-
+//-----------------------------------------------------------------
+//HELPER
 static void Public_Transport_Set_Vptr(Public_Transport* this)
 {
     this->vptr = Public_Transport_Vtable;
@@ -95,7 +102,7 @@ typedef struct
     int m_numSeats;
 }Minibus;
 
-//forward declaration of minibus relevant functions
+//FORWARD DECLARATIONS------------------------------------------------
 void Minibus_Ctor(Minibus* this);
 void Minibus_Cctor(Minibus* this, Minibus* other);
 void  Minibus_Dtor(void* this);
@@ -104,14 +111,14 @@ void Minibus_Wash(void* this);
 VirtualMethod* Minibus_Get_Vptr(Minibus* this);
 static void Minibus_Set_Vptr(Minibus* this);
 
-
+//VTABLE----------------------------------------------------------------
 static VirtualMethod Minibus_Vtable[] =
 {
     Minibus_Dtor, 
     Minibus_Display,
     Minibus_Wash
 };
-
+//IMPLEMENTATION-------------------------------------------------------
 // ctor
 void Minibus_Ctor(Minibus* this)
 {
@@ -120,7 +127,8 @@ void Minibus_Ctor(Minibus* this)
     this->m_numSeats= 20;
     printf("Minibus::Ctor()\n");
 }
-
+//------------------------------------------------------------------------------
+//CCTOR
 void Minibus_Cctor(Minibus* this, Minibus* other)
 {
     Public_Transport_Cctor(&this->base_class, &other->base_class);
@@ -128,7 +136,8 @@ void Minibus_Cctor(Minibus* this, Minibus* other)
     this->m_numSeats = other->m_numSeats;
     printf("Minibus::CCtor()\n");
 }
-
+//------------------------------------------------------------------------------
+//DTOR
 void  Minibus_Dtor(void* this)
 {
     Minibus* self = (Minibus*)this;
@@ -136,26 +145,30 @@ void  Minibus_Dtor(void* this)
     printf("Minibus::dtor()\n");
     Public_Transport_Dtor(&self->base_class);
 }
-
+//------------------------------------------------------------------------------
+//DISPLAY VIRTUAL
 void Minibus_Display(void* this)
 {
     Minibus* self = (Minibus*)this;
     printf("MInibus::Display() ID %d", Public_Transport_GetId(&self->base_class));
     printf(" num seats: %d\n", self->m_numSeats);
 }
-
+//------------------------------------------------------------------------------
+//WASH VIRTUAL
 void Minibus_Wash(void* this)
 {
     Minibus* self = (Minibus*)this;
     printf("Minibus::Wash() ID: %d\n",Public_Transport_GetId(&self->base_class));
 }
-
+//------------------------------------------------------------------------------
+//HELPER
 VirtualMethod* Minibus_Get_Vptr(Minibus* this)
 {
     //printf("it entered minibus get vptr successfully\n");
     return (this->base_class.vptr);
 }
-
+//------------------------------------------------------------------------------
+//HELPER
 static void Minibus_Set_Vptr(Minibus* this)
 {
     this->base_class.vptr = Minibus_Vtable;
@@ -168,6 +181,7 @@ typedef struct
     Public_Transport base_class;
 } Taxi;
 
+//FORWARD DECLARATIONS------------------------------------------------
 void Taxi_Ctor(Taxi* this);
 void Taxi_Cctor(Taxi* this, Taxi* other);
 void  Taxi_Dtor(void* this);
@@ -175,41 +189,45 @@ void Taxi_Display(void* this);
 static VirtualMethod* Taxi_Get_Vptr(Taxi* this);
 static void Taxi_Set_Vptr(Taxi* this);
 
-
+//VTABLE----------------------------------------------------------------
 static VirtualMethod Taxi_Vtable[] =
 {
     Taxi_Dtor, 
     Taxi_Display
 };
-
-// ctor
+//IMPLEMENTATION-------------------------------------------------------
+// CTOR
 void Taxi_Ctor(Taxi* this)
 {
     Public_Transport_Ctor(&this->base_class); 
     Taxi_Set_Vptr(this);
     printf("Taxi::Ctor()\n");
 }
-
+//------------------------------------------------------------------------------
+//CCTOR
 void Taxi_Cctor(Taxi* this, Taxi* other)
 {
     Public_Transport_Cctor(&this->base_class, &other->base_class);
     Taxi_Set_Vptr(this);
     printf("Taxi::CCtor()\n");
 }
-
+//------------------------------------------------------------------------------
+//DTOR
 void  Taxi_Dtor(void* this)
 {
     Taxi* self = (Taxi*)this;
     printf("Taxi::dtor()\n");
     Public_Transport_Dtor(&self->base_class);
 }
-
+//------------------------------------------------------------------------------
+//DISPLAY VIRTUAL
 void Taxi_Display(void* this)
 {
     Taxi* self = (Taxi*)this;
     printf("Taxi::Display() ID %d\n", Public_Transport_GetId(&self->base_class));
 }
-
+//------------------------------------------------------------------------------
+//HELPER
 static VirtualMethod* Taxi_Get_Vptr(Taxi* this)
 {
     return (this->base_class.vptr);
