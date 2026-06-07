@@ -3,10 +3,9 @@
 developer: rozaline
 reviewer: itay
 */
-#include <cstring>   // strlen, strcpy, strcmp
-#include <iomanip>   // setw
-#include <iostream>  // ostream, istream
-#include <algorithm> // swap
+#include <cstring>  
+#include <iomanip>  
+#include <iostream>  
 #include "rcstring.hpp"
 
 namespace hrd42
