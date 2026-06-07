@@ -1,61 +1,29 @@
-#include <cstring> 
-#include <iostream>
 
+/*
+developer: rozaline
+reviewer: itay
+*/
+#include <cstring>   // strlen, strcpy, strcmp
+#include <iomanip>   // setw
+#include <iostream>  // ostream, istream
+#include <algorithm> // swap
 #include "rcstring.hpp"
 
-using namespace hrd42;
-
-const size_t g_max_len = 200;
-
-class RCString::SharedData 
+namespace hrd42
 {
 
-  public:
+static const size_t g_max_str_len = 200;
 
-    //cctor and operator= are blocked , this class take no 
-    //responsibility neither decisions
-    explicit SharedData(const char* str);
-    
-    size_t GetCounter();
-    char* GetString();
-
-    SharedData& operator++();
-    SharedData& operator--();
-        
-    void* operator new(size_t size_, const char* str_);
-    void operator delete(void* ptr_);
-
-  private:
-    size_t m_count;
-    char m_data[1];
-
-    //blocked (moved responsibility to RCString class)
-    SharedData& operator=(const SharedData& other_);
-    SharedData(const SharedData& other_);
-
-};
-//----------------------------------------------------------------
-//SHARED DATA IMPLEMENTATION
-RCString::SharedData::SharedData(const char* str) : m_count(1)
+RCString::SharedData::SharedData(const char* str_) : m_counter(1)
 {
-    strcpy(m_data, str);
-}
-
-RCString::SharedData& RCString::SharedData::operator++()
-{
-    ++m_count;
-    return *this;
-}
-
-RCString::SharedData& RCString::SharedData::operator--()
-{
-    --m_count;
-    return *this;
+    strcpy(m_str, str_);
 }
 
 void* RCString::SharedData::operator new(size_t size_, const char* str_)
 {
-    return ::operator new(size_ + strlen(str_));
+    return ::operator new(size_ + strlen(str_)); 
+    // size_ already includes the 1 byte of m_str[1],
+    // so we only add strlen (the \0 is covered by that 1 byte)
 }
 
 void RCString::SharedData::operator delete(void* ptr_)
@@ -63,112 +31,128 @@ void RCString::SharedData::operator delete(void* ptr_)
     ::operator delete(ptr_);
 }
 
-//----------------------------------------------------------------
-//RC String IMPLEMENTATION
-RCString::RCString(const char* str) : m_shared_data(new (str) SharedData(str))
-{}
-
-RCString::RCString(const RCString& other) : m_shared_data(other.m_shared_data)
+RCString::SharedData& RCString::SharedData::operator++()
 {
-    ++(*m_shared_data);
+    ++m_counter;
+    return *this;
 }
 
-RCString& RCString::operator=(const RCString& other)
+RCString::SharedData& RCString::SharedData::operator--()
 {
-    // self assignment check
-    if (this != &other)  
-    {
-        --m_shared_data;
-        //if its not shared anymore, destroy it
-        if (0 == m_shared_data->GetCounter())
-        {
-            delete m_shared_data;
-        }
-        //set the new data to point at the other data and increase the counter
-        m_shared_data = other.m_shared_data;
-        ++m_shared_data;
-    }
+    --m_counter;
+    return *this;
+}
+
+RCString::ProxyChar::ProxyChar(RCString& rcs_, size_t idx_)
+    : m_rcs(rcs_), m_idx(idx_)
+{}
+
+// read  = conversion operator
+RCString::ProxyChar::operator char() const
+{
+    return m_rcs.Cstr()[m_idx];
+}
+
+// write = COW here
+RCString::ProxyChar& RCString::ProxyChar::operator=(char c_)
+{
+    RCString copy(m_rcs.Cstr());       // new independent copy
+    copy.m_data->m_str[m_idx] = c_;   // modify the copy
+    std::swap(copy.m_data, m_rcs.m_data); // swap into original
+    return *this;
+}
+
+// s[i] = s[j]
+RCString::ProxyChar& RCString::ProxyChar::operator=(const ProxyChar& other_)
+{
+    return (*this = static_cast<char>(other_));
+}
+
+
+
+RCString::RCString(const char* str_)
+    : m_data(new (str_) SharedData(str_))
+{
+}
+
+RCString::RCString(const RCString& other_)
+    : m_data(other_.m_data)
+{
+    ++(*m_data);
+}
+
+RCString& RCString::operator=(const RCString& other_)
+{
+    RCString temp(other_);
+    std::swap(m_data, temp.m_data);
     return *this;
 }
 
 RCString::~RCString()
 {
-    --(*m_shared_data);
-    //if its not shared anymore, destroy it
-    if (0 == m_shared_data->GetCounter())
+   --(*m_data);
+    if (0 == m_data->m_counter)
     {
-        delete m_shared_data;
-        //handle dangling pointer
-        m_shared_data = 0;
+        delete m_data;
     }
 }
 
-bool RCString::operator==(const RCString& other) const
+bool RCString::operator==(const RCString& other_) const
 {
-    return (0 == strcmp(m_shared_data->GetString(), other.m_shared_data->GetString()));
+    return (0 == strcmp(Cstr(), other_.Cstr()));
 }
 
-bool RCString::operator!=(const RCString& other) const
+bool RCString::operator!=(const RCString& other_) const
 {
-    return !(*this == other);
+    return !(*this == other_);
 }
 
-RCString& RCString::operator+=(const RCString& other)
+RCString& RCString::operator+=(const RCString& other_)
 {
-    // to protect from a situation such str += str;
-    char* temp = new char[this->Length() + other.Length() + 1]; //allocate properly sized buffer
-    strcpy(temp, this->Cstr()); 
-    strcat(temp, other.Cstr());
-
-    //decrease the counter of the current data, if its not shared anymore, destroy it
-    --(*m_shared_data);
-    if (0 == m_shared_data->GetCounter())
-    {
-        delete m_shared_data;
-        m_shared_data = nullptr;
-    }
-    //set the new data to point at the new string and increase the counter
-    SharedData* new_data = new (temp) SharedData(temp);
-    m_shared_data = new_data;
-    delete[] temp;
-
+    RCString result((*this + other_).Cstr());
+    std::swap(m_data, result.m_data);
     return *this;
-}
-
-const char& RCString::operator[](size_t idx) const
-{
-    return Cstr()[idx];
 }
 
 size_t RCString::Length() const
 {
     return strlen(Cstr());
-
 }
 
 const char* RCString::Cstr() const
 {
-    return m_shared_data->GetString();
+    return m_data->m_str;
 }
 
-std::istream& operator>>(std::istream& is, RCString& str)
+// non-const operator[] returns Proxy
+RCString::ProxyChar RCString::operator[](size_t idx_)
 {
-    char read_buf[g_max_len];
-    is.getline(read_buf, g_max_len); 
-    str = RCString(read_buf);
-    return is;
+    return ProxyChar(*this, idx_);
 }
 
-std::ostream& operator<<(std::ostream& os, const RCString& str)
+// const operator[] direct access, no COW needed
+const char& RCString::operator[](size_t idx_) const
 {
-    os << str.Cstr();
-    return os;
+    return Cstr()[idx_];
 }
 
-const RCString operator+(const RCString& lhs, const RCString& rhs)
+
+const RCString operator+(const RCString& lhs_, const RCString& rhs_)
 {
-    return (RCString(lhs) += rhs);
+    return (RCString(lhs_) += rhs_);
 }
 
+std::ostream& operator<<(std::ostream& os_, const RCString& str_)
+{
+    return (os_ << str_.Cstr());
+}
 
+std::istream& operator>>(std::istream& is_, RCString& str_)
+{
+    char buf[g_max_str_len];
+    is_ >> std::setw(g_max_str_len) >> buf;
+    str_ = RCString(buf);
+    return is_;
+}
 
+} // namespace hrd42
