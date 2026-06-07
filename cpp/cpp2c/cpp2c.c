@@ -141,8 +141,8 @@ void Minibus_Cctor(Minibus* this, Minibus* other)
 void  Minibus_Dtor(void* this)
 {
     Minibus* self = (Minibus*)this;
-    Public_Transport_Set_Vptr(&self->base_class);
     printf("Minibus::dtor()\n");
+    Public_Transport_Set_Vptr(&self->base_class);
     Public_Transport_Dtor(&self->base_class);
 }
 //------------------------------------------------------------------------------
@@ -217,6 +217,7 @@ void  Taxi_Dtor(void* this)
 {
     Taxi* self = (Taxi*)this;
     printf("Taxi::dtor()\n");
+    Public_Transport_Set_Vptr(&self->base_class);
     Public_Transport_Dtor(&self->base_class);
 }
 //------------------------------------------------------------------------------
@@ -263,7 +264,8 @@ static VirtualMethod Special_Taxi_Vtable[] =
 void Special_Taxi_Ctor(Special_Taxi* this)
 {
     Taxi_Ctor(&this->base_class_taxi);
-    this->base_class_taxi.base_class.vptr = Special_Taxi_Vtable;
+    Special_Taxi_Set_Vptr(this);
+    //this->base_class_taxi.base_class.vptr = Special_Taxi_Vtable;
     printf("Special_Taxi::Ctor()\n");
 }
 
@@ -271,7 +273,8 @@ void Special_Taxi_Ctor(Special_Taxi* this)
 void Special_Taxi_Cctor(Special_Taxi* this, Special_Taxi* other)
 {
     Taxi_Cctor(&this->base_class_taxi, &other->base_class_taxi);
-    this->base_class_taxi.base_class.vptr = Special_Taxi_Vtable;
+    Special_Taxi_Set_Vptr(this);
+    //this->base_class_taxi.base_class.vptr = Special_Taxi_Vtable;
     printf("Special_Taxi::CCtor()\n");
 }
 
@@ -280,7 +283,7 @@ void Special_Taxi_Dtor(void* this)
 {
     Special_Taxi* self = (Special_Taxi*)this;
     printf("Special_Taxi::dtor()\n");
-
+    Taxi_Set_Vptr(&self->base_class_taxi);
     Taxi_Dtor(&self->base_class_taxi);
 }
 
@@ -330,7 +333,8 @@ void Public_Convoy_Ctor(Public_Convoy* this)
     this->m_pt2 = (Taxi*)malloc(sizeof(Taxi));
     Taxi_Ctor((Taxi*)this->m_pt2);
 
-    this->base_class.vptr = Public_Convoy_Vtable;
+    //this->base_class.vptr = Public_Convoy_Vtable;
+    Public_Convoy_Set_Vptr(&this->base_class);
 
     Minibus_Ctor(&this->m_m);
     Taxi_Ctor(&this->m_t);
@@ -349,7 +353,7 @@ void Public_Convoy_Cctor(Public_Convoy* this, Public_Convoy* other)
     Minibus_Cctor(&this->m_m, &other->m_m);
     Taxi_Cctor(&this->m_t, &other->m_t);
 
-    Public_Convoy_Set_Vptr(this);
+    Public_Convoy_Set_Vptr(&this->base_class);
 
     printf("Public_Convoy::CCtor()\n");
 
@@ -370,6 +374,7 @@ void Public_Convoy_Dtor(void* this)
 
     Public_Transport_Dtor(&self->base_class);
 
+    Public_Transport_Set_Vptr(&self->base_class);
    // printf("Public_Convoy::dtor()\n");
 }
 
