@@ -411,8 +411,6 @@ void PrintInfo_Void()
 
 void PrintInfo_Int(Public_Transport* temporary, int i)
 {
-    PrintSepperator();
-
     Minibus ret;
     Minibus_Ctor(&ret);
 
@@ -455,7 +453,6 @@ int main(int argc, char **argv, char **envp)
          */
     Public_Transport temporary;
     PrintInfo_Int(&temporary, 3);
-
     temporary.vptr[DISPLAY_IDX](&temporary);
     /* temporary dies as soon as we get to ; (unless it has been catched by ref)*/
     Public_Transport_Dtor(&temporary);
@@ -595,7 +592,9 @@ Minibus_Dtor(&m2);
 
 for(int i = 2; i >= 0; i--)
 {
-    Public_Transport_Dtor(&arr2[i]);  
+    // polymorphism 
+    arr2[i].vptr[DTOR_IDX](&arr2[i]);
+    //Public_Transport_Dtor(&arr2[i]);  
 }
 
 Minibus_Dtor(&m);              
